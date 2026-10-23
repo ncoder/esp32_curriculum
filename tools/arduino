@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Runs arduino-cli with this project's config (core + libraries live in .arduino/).
+# Uses arduino-cli from PATH, or the copy bundled inside the Arduino IDE app.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+if command -v arduino-cli >/dev/null 2>&1; then
+  CLI="arduino-cli"
+elif [ -x "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli" ]; then
+  CLI="/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli"
+elif [ -x "$HOME/AppData/Local/Programs/Arduino IDE/resources/app/lib/backend/resources/arduino-cli.exe" ]; then
+  CLI="$HOME/AppData/Local/Programs/Arduino IDE/resources/app/lib/backend/resources/arduino-cli.exe"
+else
+  echo "arduino-cli not found. Install it (brew install arduino-cli) or install Arduino IDE 2." >&2
+  exit 1
+fi
+
+cd "$ROOT"
+exec "$CLI" --config-file "$ROOT/arduino-cli.yaml" "$@"

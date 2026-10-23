@@ -1,0 +1,64 @@
+{
+  // Open any .ino file, then Terminal > Run Task (or Cmd/Ctrl+Shift+B to compile).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Arduino: compile this sketch",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/arduino",
+      "args": ["compile", "--fqbn", "esp32:esp32:esp32", "--build-path", "${workspaceFolder}/.arduino/build/${fileDirnameBasename}", "${fileDirname}"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "Arduino: upload this sketch",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/arduino",
+      "args": ["compile", "--upload", "--port", "${input:port}", "--fqbn", "esp32:esp32:esp32", "--build-path", "${workspaceFolder}/.arduino/build/${fileDirnameBasename}", "${fileDirname}"],
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "Arduino: serial monitor",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/arduino",
+      "args": ["monitor", "--port", "${input:port}", "--config", "baudrate=115200"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Arduino: list connected boards",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/arduino",
+      "args": ["board", "list"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Check: compile all lessons",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/compile_all.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Handouts: build PDFs",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["${workspaceFolder}/tools/build_pdfs.py"],
+      "problemMatcher": []
+    },
+    {
+      "label": "IntelliSense: refresh",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["${workspaceFolder}/tools/vscode_intellisense.py"],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "port",
+      "type": "promptString",
+      "description": "Serial port (run 'Arduino: list connected boards' to find it), e.g. /dev/cu.usbserial-0001 or COM3",
+      "default": "/dev/cu.usbserial-0001"
+    }
+  ]
+}

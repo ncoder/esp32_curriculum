@@ -1,0 +1,7 @@
+{
+  "files.associations": { "*.ino": "cpp" },
+  "C_Cpp.default.configurationProvider": "",
+  "editor.tabSize": 2,
+  "files.exclude": { ".arduino": true, ".venv": true },
+  "search.exclude": { ".arduino": true, ".venv": true, "handouts": true }
+}

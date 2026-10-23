@@ -1,0 +1,8 @@
+# Project-local Arduino core, libraries and build output (recreate with tools/setup.sh)
+.arduino/
+.venv/
+__pycache__/
+# Machine-specific; regenerate with tools/vscode_intellisense.py
+.vscode/c_cpp_properties.json
+handouts/*.html
+.DS_Store
