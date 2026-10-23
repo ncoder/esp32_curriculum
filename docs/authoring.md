@@ -56,8 +56,8 @@ Wiring goes in a table with a `✓` column of `[ ]` boxes and *From → To* colu
 ## Check your work
 
 ```
-tools/compile_all.sh L05                  # compile this lesson's sketches
-.venv/bin/python tools/build_pdfs.py L05  # build its handout
+make -j6 check LESSON=L05   # compile this lesson's sketches
+make pdfs LESSON=L05        # build its handout
 ```
 
 Open the PDF and check that the code boxes don't split awkwardly and that the

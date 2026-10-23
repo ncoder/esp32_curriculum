@@ -35,14 +35,17 @@
     {
       "label": "Check: compile all lessons",
       "type": "shell",
-      "command": "${workspaceFolder}/tools/compile_all.sh",
+      "command": "make",
+      "args": ["-j6", "check"],
+      "options": { "cwd": "${workspaceFolder}" },
       "problemMatcher": []
     },
     {
       "label": "Handouts: build PDFs",
       "type": "shell",
-      "command": "${workspaceFolder}/.venv/bin/python",
-      "args": ["${workspaceFolder}/tools/build_pdfs.py"],
+      "command": "make",
+      "args": ["-j4", "pdfs"],
+      "options": { "cwd": "${workspaceFolder}" },
       "problemMatcher": []
     },
     {

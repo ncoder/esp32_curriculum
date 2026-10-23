@@ -39,8 +39,9 @@ the copy of `arduino-cli` bundled inside the IDE).
 
 ```sh
 make setup     # ESP32 core + libraries into .arduino/, Python venv, VS Code IntelliSense
-make check     # compile every sketch
-make pdfs      # rebuild every handout in handouts/ (make pdfs-a4 for A4 paper)
+make -j6       # compile every sketch and build every handout (only what changed)
+make check     # just compile the sketches; `make check LESSON=L05` for one lesson
+make pdfs      # just the handouts in handouts/; add PAPER=a4 for A4 paper
 ```
 
 Everything is installed inside this folder (`.arduino/`, `.venv/`), so your

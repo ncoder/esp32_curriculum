@@ -32,6 +32,7 @@ LESSONS = ROOT / "lessons"
 OUT = ROOT / "handouts"
 CSS = ROOT / "tools" / "handout.css"
 MAX_CODE_LINE = 72  # longer lines wrap on paper and are hard to copy
+KEEP_TOGETHER_LINES = 15
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -67,7 +68,8 @@ def code_block(source, name):
     ]
     body = highlight(source.rstrip("\n") + "\n", LEXER, FORMATTER)
     n = source.rstrip("\n").count("\n") + 1
-    cls = "sketch keep" if n <= 45 else "sketch"
+    # Short sketches stay on one page; longer ones may split rather than leave a big gap.
+    cls = "sketch keep" if n <= KEEP_TOGETHER_LINES else "sketch"
     return (
         f'<div class="{cls}"><div class="sketch-head">'
         f'<span>Type this in &rarr; save it as <b>{html.escape(name)}</b></span>'
@@ -89,6 +91,8 @@ def expand_sketches(md, lesson_dir):
         # Raw HTML blocks must be separated by blank lines for Markdown to leave them alone.
         return f"\n\n{block}\n\n"
 
+    # "____" fill-in blanks would otherwise be read as Markdown bold/italics.
+    md = re.sub(r"(?<![`\w])_{4,}(?![`\w])", '<span class="blank"></span>', md)
     md = re.sub(r"^@sketch\s+(\S+)\s*$", repl, md, flags=re.M)
     # "@lines 3" (may be indented, e.g. inside a callout) -> 3 ruled lines to write on.
     md = re.sub(r"^(\s*)@lines\s+(\d+)\s*$",
@@ -107,6 +111,9 @@ def render_md(md):
 
 
 def inline(text):
+    # An unquoted YAML item like "Pin 5: SS" parses as {"Pin 5": "SS"}; print it as written.
+    if isinstance(text, dict):
+        text = ", ".join(f"{k}: {v}" for k, v in text.items())
     return markdown.markdown(str(text)).removeprefix("<p>").removesuffix("</p>")
 
 
@@ -168,6 +175,7 @@ def main():
     ap.add_argument("filters", nargs="*", help="only build lessons whose folder contains one of these")
     ap.add_argument("--paper", default="letter", choices=["letter", "a4"])
     ap.add_argument("--html", action="store_true", help="keep the generated HTML next to each PDF")
+    ap.add_argument("--book", action="store_true", help="only build the combined all-lessons PDF")
     args = ap.parse_args()
 
     chrome = find_chrome()
@@ -181,12 +189,14 @@ def main():
         fm, article, warnings = lesson_html(d)
         all_warnings += warnings
         articles.append(article)
+        if args.book:
+            continue
         pdf = OUT / f"{d.name}.pdf"
         footer = f"Lesson {int(fm['lesson'])}: {fm['title']}"
         print_pdf(chrome, page(fm["title"], [article], args.paper, footer), pdf, args.html)
         print(f"wrote {pdf.relative_to(ROOT)}")
 
-    if not args.filters and articles:
+    if (args.book or not args.filters) and articles:
         book = OUT / "ESP32-Curriculum-All-Lessons.pdf"
         print_pdf(chrome, page("ESP32 Curriculum", articles, args.paper, "ESP32 Super Starter Kit Curriculum"), book, args.html)
         print(f"wrote {book.relative_to(ROOT)}")
