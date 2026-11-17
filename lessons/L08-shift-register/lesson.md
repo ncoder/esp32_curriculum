@@ -103,6 +103,8 @@ Last, add the **potentiometer** (the knob). We'll use it in Sketch 3:
 | [ ] | potentiometer middle leg | ESP32 pin **34** |
 | [ ] | potentiometer right leg | **–** rail (GND) |
 
+@circuit L08_shift
+
 !!! warning "Careful with the chip"
     Don't connect pin 16 to 5V: use **3V3**. If the chip gets hot, unplug the USB right away and check the power wires.
 

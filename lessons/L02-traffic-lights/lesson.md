@@ -46,8 +46,10 @@ This is the same idea as the LED from Lesson 1, done three times. Each LED gets 
 | [ ] | ESP32 pin **27** | 220 Ω resistor → **long leg** of the **green** LED |
 | [ ] | **short legs** of all 3 LEDs | **–** rail |
 
+@circuit L02_traffic
+
 !!! tip "Keep it tidy"
-    Put the LEDs in a line, red at the top, like a real traffic light. Leave a gap between them so the legs don't touch.
+    Put the LEDs in a line like in the picture, one empty hole between them, so the legs don't touch. The outer resistors lean over by one column to reach them.
 
 ## 3. Sketch 1: A traffic light
 

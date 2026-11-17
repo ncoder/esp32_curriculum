@@ -6,3 +6,6 @@ __pycache__/
 .vscode/c_cpp_properties.json
 handouts/*.html
 .DS_Store
+
+# drawing stamps
+lessons/*/diagrams/.drawn

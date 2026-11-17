@@ -58,6 +58,8 @@ Some boards have a little **jumper** too. If yours does, put it on **H** ("repea
 | [ ] | ESP32 pin **26** | 220 Ω resistor → **long leg** of the **green** LED |
 | [ ] | short leg of the green LED | **–** rail |
 
+@circuit L13_motion
+
 !!! tip "The PIR is happy with 5 V"
     It needs 5 V to power itself, but its **OUT** pin only ever sends 3.3 V. So it is safe to connect straight to the ESP32, with no divider needed.
 
@@ -109,6 +111,8 @@ Add these parts:
 | [ ] | the button's **opposite** leg | **–** rail |
 | [ ] | Buzzer **+** | ESP32 pin **33** |
 | [ ] | Buzzer **–** | **–** rail |
+
+@circuit L13_alarm
 
 **File → New Sketch**, type this in and save it as **L13_Alarm**.
 

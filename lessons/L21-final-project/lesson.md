@@ -67,6 +67,8 @@ Here is one finished project, so you can see how the pieces come together. You c
 | [ ] | Buzzer **+** | **33** | – to **GND** |
 | [ ] | OLED **SDA / SCL** | **21 / 22** | VCC to **3V3**, GND to **GND** |
 
+@circuit L21_smart_room
+
 @sketch L21_SmartRoom
 
 ### Where did each piece come from?

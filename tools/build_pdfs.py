@@ -4,7 +4,9 @@
 Each lesson.md starts with YAML front matter (title, parts, plan, ...) followed by
 Markdown. A line containing only `@sketch NAME` is replaced by the exact contents
 of the sketch NAME/NAME.ino from that lesson folder, so the handout always shows
-the same code that the compile check builds.
+the same code that the compile check builds. A line `@circuit NAME` shows the
+circuit diagram and breadboard picture that tools/draw_circuits.py drew from the
+lesson's circuits.py (diagrams/NAME.schematic.svg and diagrams/NAME.breadboard.svg).
 
 Usage:
   .venv/bin/python tools/build_pdfs.py            # all lessons + combined book
@@ -13,6 +15,7 @@ Usage:
   .venv/bin/python tools/build_pdfs.py --paper a4
 """
 import argparse
+import base64
 import html
 import re
 import shutil
@@ -78,6 +81,39 @@ def code_block(source, name):
     ), warnings
 
 
+FIG_WIDTH = 6.9      # inches of page width for a circuit figure
+FIG_MAX_H = 5.0      # tallest a circuit figure may be, in inches
+
+
+def svg_size(text):
+    m = re.search(r'viewBox="[-\d.]+ [-\d.]+ ([\d.]+) ([\d.]+)"', text)
+    if not m:
+        m = re.search(r'width="([\d.]+)(?:pt|px)?" height="([\d.]+)(?:pt|px)?"', text)
+    return float(m.group(1)), float(m.group(2))
+
+
+def circuit_block(lesson_dir, name):
+    """The schematic and the breadboard picture side by side, scaled to the same height."""
+    views = []
+    for kind, caption in (("schematic", "Circuit diagram"), ("breadboard", "On the breadboard")):
+        path = lesson_dir / "diagrams" / f"{name}.{kind}.svg"
+        if not path.exists():
+            raise FileNotFoundError(f"{lesson_dir.name}: {path.name} is missing. Run `make circuits`.")
+        text = path.read_text()
+        w, h = svg_size(text)
+        views.append((caption, text, w / h))
+    title = re.search(r"<title>(.*?)</title>", views[1][1])
+    gap = 0.25
+    height = min(FIG_MAX_H, (FIG_WIDTH - gap) / sum(a for _, _, a in views))
+    figs = []
+    for caption, text, aspect in views:
+        uri = "data:image/svg+xml;base64," + base64.b64encode(text.encode()).decode()
+        figs.append(f'<figure style="width:{aspect * height:.2f}in"><img src="{uri}" alt="{caption}">'
+                    f'<figcaption>{caption}</figcaption></figure>')
+    head = f'<div class="circuit-title">{title.group(1) if title else name}</div>' if title else ""
+    return f'<div class="circuit">{head}<div class="circuit-views">{"".join(figs)}</div></div>'
+
+
 def expand_sketches(md, lesson_dir):
     warnings = []
 
@@ -94,6 +130,8 @@ def expand_sketches(md, lesson_dir):
     # "____" fill-in blanks would otherwise be read as Markdown bold/italics.
     md = re.sub(r"(?<![`\w])_{4,}(?![`\w])", '<span class="blank"></span>', md)
     md = re.sub(r"^@sketch\s+(\S+)\s*$", repl, md, flags=re.M)
+    md = re.sub(r"^@circuit\s+(\S+)\s*$", lambda m: f"\n\n{circuit_block(lesson_dir, m.group(1))}\n\n", md,
+                flags=re.M)
     # "@lines 3" (may be indented, e.g. inside a callout) -> 3 ruled lines to write on.
     md = re.sub(r"^(\s*)@lines\s+(\d+)\s*$",
                 lambda m: m.group(1) + '<span class="answer"></span>' * int(m.group(2)), md, flags=re.M)

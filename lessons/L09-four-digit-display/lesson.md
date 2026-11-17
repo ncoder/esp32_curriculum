@@ -79,6 +79,8 @@ Push the display across the middle gap of a breadboard. You can reuse the ESP32 
 
 **Button:** one leg to ESP32 pin **13**, the diagonally opposite leg to the **–** rail. Connect ESP32 **GND** to the **–** rail.
 
+@circuit L09_four_digits
+
 ## 3. Sketch 1: See the trick
 
 Type this in and save it as **L09_Multiplex**. The digit table is the same as in Lesson 7. If you still have L07_Count, you can copy and paste it!

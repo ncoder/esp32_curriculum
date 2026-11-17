@@ -66,6 +66,8 @@ The sensor runs on 5 V, so its **Echo** pin sends back 5 V. That is too much for
 | [ ] | **2 kΩ** resistor | from *row M* to the **–** rail |
 | [ ] | *row M* | ESP32 pin **16** |
 
+@circuit L12_distance
+
 !!! tip "Check the + rail"
     In earlier lessons the **+** rail may have been 3.3 V. Today it is **5 V**. Only the sensor's VCC should use it.
 
@@ -113,6 +115,8 @@ Add the **passive buzzer** (the one with the green board underneath):
 |---|---|---|
 | [ ] | Buzzer **+** (or **S**) | ESP32 pin **33** |
 | [ ] | Buzzer **–** | **–** rail |
+
+@circuit L12_parking
 
 Use **File → Save As…** to save a copy of your sketch as **L12_Parking**, then change it to match this:
 

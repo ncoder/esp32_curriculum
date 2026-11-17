@@ -53,6 +53,8 @@ The servo has 3 wires bundled in one plug. Push male jumper wires into the plug'
 | [ ] | Servo **red** wire (power) | **+** rail (5 V) |
 | [ ] | Servo **orange** wire (signal) | ESP32 pin **18** |
 
+@circuit L14_servo
+
 Press one of the plastic **horns** onto the servo's shaft so you can see it move.
 
 !!! warning "Don't force it!"
@@ -90,6 +92,8 @@ A **joystick** is really **two knobs** (like the potentiometer from Lesson 4) pl
 | [ ] | **VRx** | ESP32 pin **34** |
 | [ ] | **VRy** | ESP32 pin **35** |
 | [ ] | **SW** | ESP32 pin **14** |
+
+@circuit L14_joystick
 
 !!! warning "Use 3V3 for the joystick"
     Even though the joystick's pin says **+5V**, connect it to **3V3**. The ESP32 can only measure voltages up to 3.3 V, and 5 V would damage pins 34 and 35.

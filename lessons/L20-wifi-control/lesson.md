@@ -42,6 +42,8 @@ Your ESP32 is powerful enough to be a web server! And it can even make its **own
 | [ ] | Knob **middle** leg | ESP32 pin **34** |
 | [ ] | Knob **right** leg | **3V3** |
 
+@circuit L20_wifi
+
 ## 3. Sketch 1: Hello, web!
 
 Type this in and save as **L20_HelloWeb**.

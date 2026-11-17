@@ -51,6 +51,8 @@ Read the labels printed on **your** screen's pins. They are not always in the sa
 | [ ] | **SCL** (or SCK) | **22** |
 | [ ] | **SDA** | **21** |
 
+@circuit L10_oled
+
 ## 3. Sketch 1: Hello, screen!
 
 Type this in and save it as **L10_Hello**:

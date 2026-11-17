@@ -59,6 +59,8 @@ Hold the keypad face up with the ribbon at the bottom. The 8 holes in its plug a
 
 Also connect the buzzer: **+** to pin **33**, **–** to the **–** rail, and ESP32 **GND** to the **–** rail.
 
+@circuit L16_keypad
+
 !!! tip "Use wires of different colours"
     It is much easier to check 8 wires if they are in a rainbow order. Then you can see at a glance if two are swapped.
 
@@ -91,6 +93,8 @@ Also connect the buzzer: **+** to pin **33**, **–** to the **–** rail, and E
 | [ ] | ESP32 pin **19** | 220 Ω resistor → **long leg** of **red** LED |
 | [ ] | ESP32 pin **23** | 220 Ω resistor → **long leg** of **green** LED |
 | [ ] | short legs of both LEDs | **–** rail |
+
+@circuit L16_lock
 
 The servo is the door's **bolt**: at 0° it is locked, at 90° it is open.
 

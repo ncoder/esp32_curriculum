@@ -115,3 +115,11 @@ pre code { background: none; padding: 0; border-radius: 0; font: inherit; }
 /* Ruled lines for students to write answers on */
 .blank { display: inline-block; width: 7em; border-bottom: 1px solid #9aa4b2; height: 1.1em; margin: 0 4px; }
 .answer { display: block; border-bottom: 1px solid #9aa4b2; height: 24px; }
+
+/* ---------- Circuit pictures (@circuit) ---------- */
+.circuit { break-inside: avoid; margin: 8px 0 10px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px 4px; }
+.circuit-title { font-weight: 700; font-size: 10pt; color: var(--accent); margin-bottom: 4px; }
+.circuit-views { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.2in; }
+.circuit figure { margin: 0; text-align: center; }
+.circuit img { width: 100%; display: block; }
+.circuit figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 2px; }

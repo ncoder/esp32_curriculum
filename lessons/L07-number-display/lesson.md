@@ -81,6 +81,8 @@ Add the **button** for later: one leg to ESP32 pin **13**, the other leg to the 
 | [ ] | button leg | ESP32 pin **13** |
 | [ ] | other button leg (diagonally opposite) | **–** rail |
 
+@circuit L07_display
+
 ## 3. Sketch 1: Test every segment
 
 Before writing numbers, check that every bar works. Type this in and save it as **L07_Segments**.

@@ -55,6 +55,8 @@ The RC522 talks to the ESP32 using **SPI**, a fast way of sending data over 4 wi
 | [ ] | **MOSI** | **23** |
 | [ ] | **IRQ** | *not connected* |
 
+@circuit L17_reader
+
 !!! tip "Install the library"
     **Tools → Manage Libraries…**, search **MFRC522**, and install **MFRC522 by GithubCommunity**.
 
@@ -97,6 +99,8 @@ Keep the reader connected and add:
 | [ ] | both LED **short legs** | **–** rail |
 | [ ] | ESP32 pin **33** | passive buzzer **+** |
 | [ ] | buzzer **–** | **–** rail |
+
+@circuit L17_access
 
 ## 5. Sketch 2: Access control
 

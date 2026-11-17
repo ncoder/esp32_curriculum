@@ -54,6 +54,8 @@ Keep the OLED screen wired up from Lesson 10. Push the DHT11 module into the bre
 | [ ] | **+** (VCC) | **3V3** |
 | [ ] | **–** (GND) | **GND** |
 
+@circuit L11_weather
+
 !!! warning "Check before you plug in"
     If + and – are swapped, the sensor gets hot and can be damaged. Double-check, then plug in the USB cable.
 

@@ -104,6 +104,8 @@ An **LED** (light emitting diode) only lets electricity flow one way. The **long
 | [ ] | other leg of the resistor | **long leg** of the red LED |
 | [ ] | **short leg** of the LED | **–** rail |
 
+@circuit L01_blink
+
 Electricity flows in a loop: out of pin 26 → through the resistor → through the LED → back into GND. No loop means no light!
 
 ## 5. Sketch 2: Blink!

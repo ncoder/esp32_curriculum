@@ -48,6 +48,8 @@ The IR receiver module has 3 pins. Look closely at the labels. They are usually 
 | [ ] | **+** / V (middle) | **3V3** |
 | [ ] | **S** / signal | **14** |
 
+@circuit L18_ir
+
 !!! tip "Install the library"
     **Tools → Manage Libraries…**, search **IRremote**, and install **IRremote by shirriff, z3t0, ArminJo**.
 
@@ -91,6 +93,8 @@ Fill in the code for each button. **Hold** a button down. What do you notice?
 | [ ] | ESP32 pin **26** | 220 Ω resistor → RGB **green** leg |
 | [ ] | ESP32 pin **27** | 220 Ω resistor → RGB **blue** leg |
 | [ ] | RGB **longest leg** (common –) | **–** rail |
+
+@circuit L18_rgb
 
 ## 5. Sketch 2: Remote control lights
 

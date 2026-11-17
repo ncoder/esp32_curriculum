@@ -75,6 +75,8 @@ Push the chip into a free part of a breadboard, **across the middle gap**, so ea
 | [ ] | L293D leg **8** (motor power) | **+** rail (5 V from module) |
 | [ ] | L293D leg **16** (chip power) | **+** rail (5 V from module) |
 
+@circuit L15_fan
+
 Push the fan blade onto the motor's shaft. Check every wire twice, then switch the module **on**.
 
 ## 4. Sketch 1: Speed and direction
@@ -118,6 +120,8 @@ The **ULN2003** board is the stepper's driver (its "muscle"). Its 4 little LEDs 
 | [ ] | ULN2003 **IN4** | ESP32 pin **19** |
 | [ ] | ULN2003 **–** | **–** rail |
 | [ ] | ULN2003 **+** | **+** rail (5 V from module) |
+
+@circuit L15_stepper
 
 Stick a small piece of tape on the shaft like a flag so you can see it turn. Switch the module **on**.
 

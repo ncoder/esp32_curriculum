@@ -6,6 +6,8 @@ Every lesson lives in `lessons/LNN-short-name/`:
 lessons/L05-rainbow-colors/
   lesson.md                 student handout source (becomes handouts/L05-rainbow-colors.pdf)
   NOTES.md                  teacher notes: prep, common problems, quiz answers
+  circuits.py               the lesson's circuits (see circuits.md)
+  diagrams/                 schematic + breadboard pictures drawn from circuits.py
   L05_Fade/L05_Fade.ino     sketches students type (shown in the handout)
   L05_Mixer/L05_Mixer.ino
   solutions/L05_Disco/L05_Disco.ino   challenge solutions (repo only, not in the handout)
@@ -28,11 +30,14 @@ Special syntax:
 | Write | You get |
 |---|---|
 | `@sketch L05_Fade` on its own line | The full contents of `L05_Fade/L05_Fade.ino` in a "type this in" box |
+| `@circuit L05_rgb` on its own line | The circuit diagram and breadboard picture of that circuit, side by side |
 | `@lines 2` | Two ruled lines to write an answer on (can be indented inside a callout) |
 | `[ ]` | A tick box, in lists or in table cells |
 | `!!! tip "Title"` | Green box. Other kinds: `info` (big idea), `warning`, `challenge`, `question` |
 
-Wiring goes in a table with a `✓` column of `[ ]` boxes and *From → To* columns.
+Wiring goes in a table with a `✓` column of `[ ]` boxes and *From → To* columns,
+followed by `@circuit NAME` for the pictures. Describe each circuit in the
+lesson's `circuits.py`: see [circuits.md](circuits.md).
 
 ## Sketches students type
 
@@ -57,6 +62,7 @@ Wiring goes in a table with a `✓` column of `[ ]` boxes and *From → To* colu
 
 ```
 make -j6 check LESSON=L05   # compile this lesson's sketches
+make circuits LESSON=L05    # draw its circuits, and check them against each other and the sketches
 make pdfs LESSON=L05        # build its handout
 ```
 

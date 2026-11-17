@@ -68,3 +68,9 @@ The ESP32 board is too wide for one 400-point breadboard. Clip the two
 breadboards together and put the ESP32 across the join, one pin row in each
 breadboard. One reviewer suggests removing one power rail strip so the two
 boards sit flush.
+
+The handout pictures always use the same layout: board A on top, board B below,
+USB socket on the left, the ESP32's pins in columns 1–19 (top row in board A's
+row j, bottom row in board B's row a). The pin order is that of the 38-pin
+DevKit (5V next to the USB socket on the top row, 3V3 at the far end). See
+[circuits.md](circuits.md) to change it if the kit's board differs.

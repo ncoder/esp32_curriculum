@@ -50,6 +50,8 @@ The GY-6500 and the OLED both use **I²C**, a way for many chips to share the sa
 | [ ] | OLED **SDA**, **SCL** | pins **21**, **22** (same rows as above) |
 | [ ] | Buzzer **+** / **–** | pin **33** / **GND** |
 
+@circuit L19_tilt
+
 Leave the other GY-6500 pins (EDA, ECL, AD0, INT, NCS, FSYNC) empty. Push the GY-6500 into the breadboard **flat and level**: it's going to be your game controller!
 
 ## 3. Sketch 1: Read the tilt

@@ -50,6 +50,8 @@ Keep your traffic light LEDs from Lesson 2 in place, then add:
 | [ ] | ESP32 pin **13** | one leg of the button |
 | [ ] | the **diagonally opposite** leg | **–** rail (GND) |
 
+@circuit L03_button
+
 That's it: no resistor needed! Read on to find out why.
 
 ## 3. Sketch 1: Light while pressed
@@ -122,6 +124,8 @@ Take out the second button (pin 14) and put the tilt switch in its place:
 |---|---|---|
 | [ ] | ESP32 pin **14** | one leg of the tilt switch (either way round) |
 | [ ] | other leg of the tilt switch | **–** rail (GND) |
+
+@circuit L03_tilt
 
 **File → New Sketch**, save it as **L03_ShakeAlarm**.
 

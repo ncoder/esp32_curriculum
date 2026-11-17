@@ -81,6 +81,8 @@ An **RGB LED** is really three tiny LEDs in one: **R**ed, **G**reen and **B**lue
 | [ ] | ESP32 pin **26** | 220 Ω resistor → **green** leg |
 | [ ] | ESP32 pin **27** | 220 Ω resistor → **blue** leg |
 
+@circuit L05_rgb
+
 Keep the potentiometer on pin 34 from Lesson 4. You'll need it in Sketch 3.
 
 ## 4. Sketch 2: Colour mixer

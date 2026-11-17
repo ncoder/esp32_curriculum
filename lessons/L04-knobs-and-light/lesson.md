@@ -58,6 +58,8 @@ Keep your LEDs from Lesson 2. You can remove the buttons if you need room.
 | [ ] | pot **right** leg | **–** rail (GND) |
 | [ ] | pot **middle** leg | ESP32 pin **34** |
 
+@circuit L04_knob
+
 !!! warning "3V3, never 5V!"
     The ESP32's pins can only handle **3.3 volts**. Always connect the **+** rail to **3V3**, not to the pin marked **5V** or **VIN**. Too much voltage can break the ESP32.
 
@@ -107,6 +109,8 @@ A **photoresistor** changes its resistance with light: lots of light = low resis
 | [ ] | one leg of the photoresistor | **+** rail (3.3 V) |
 | [ ] | other leg of the photoresistor | ESP32 pin **35** |
 | [ ] | 10 kΩ resistor (brown-black-orange) | from the pin **35** row to the **–** rail |
+
+@circuit L04_light
 
 Bright light → higher number. Dark → lower number.
 

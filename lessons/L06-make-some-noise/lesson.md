@@ -55,6 +55,8 @@ Find the **active** buzzer. Its **+** leg is the longer one (there's often a **+
 | [ ] | ESP32 pin **33** | buzzer **+** leg (longer) |
 | [ ] | buzzer other leg | **–** rail (GND) |
 
+@circuit L06_beep
+
 **File → New Sketch**, save it as **L06_Beep**, and upload.
 
 @sketch L06_Beep
@@ -120,6 +122,8 @@ Put 5 buttons in a row across the middle gap, like piano keys. Each button conne
 | [ ] | 3 | **16** | – rail | E |
 | [ ] | 4 | **17** | – rail | F |
 | [ ] | 5 | **18** | – rail | G |
+
+@circuit L06_piano
 
 !!! tip "Running out of room?"
     Take the RGB LED and the potentiometer off the breadboard for now. Use short wires and leave one empty row between buttons.
