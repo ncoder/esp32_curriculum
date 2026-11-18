@@ -49,7 +49,8 @@ def sketch_pins(lesson_dir, names):
     """GPIO numbers that a lesson's sketches put on pins (const ints and pin arrays)."""
     pins = set()
     for name in names:
-        hits = list(Path(lesson_dir).rglob(f"{name}/{name}.ino"))
+        hits = [h for h in Path(lesson_dir).rglob(f"{name}/{name}.ino")
+                if not {".venv", ".arduino"} & set(h.parts)]
         if not hits:
             raise FileNotFoundError(f"{lesson_dir}: sketch {name} not found")
         src = hits[0].read_text()

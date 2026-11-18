@@ -37,6 +37,8 @@ TWO_LEG = {
     "tilt": (elm.Switch, "1", "2"),
     "ldr": (elm.Photoresistor, "1", "2"),
     "motor": (elm.Motor, "1", "2"),
+    "thermistor": (elm.Thermistor, "1", "2"),
+    "diode": (elm.Diode, "A", "K"),
 }
 
 
@@ -240,6 +242,10 @@ def two_leg(s, ref, label_side="top"):
         label = f"{ref}\nphotoresistor"
     elif part.kind == "motor":
         label = f"{ref}\nDC motor"
+    elif part.kind == "thermistor":
+        label = f"{ref}\nthermistor"
+    elif part.kind == "diode":
+        label = f"{ref}\ndiode"
     else:
         label = ref
     return cls(), p1, p2, label
@@ -584,3 +590,4 @@ class BusBand(Band):
         for n in names:
             d.add(elm.Line().at((x0, ys[n])).right().tox(max(taps) + 0.6))
             d.add(elm.Label().at((max(taps) + 0.7, ys[n])).label(n, halign="left", fontsize=FONT - 2))
+

@@ -267,6 +267,40 @@ class Ldr(TwoLeg):
                      closed=False, stroke="#c0392b", sw=0.09)
 
 
+class Thermistor(TwoLeg):
+    """NTC thermistor: a small black bead (or a little disc) on two legs."""
+    kind = "thermistor"
+    symmetric = True
+
+    def draw(self, svg):
+        a, b = self.ab()
+        m = _mid(a, b)
+        self.draw_leg(svg, a, m)
+        self.draw_leg(svg, b, m)
+        with svg.g(m, _angle(a, b)):
+            svg.circle(0, 0, 0.62, fill="#2b2f33", stroke="#000", sw=0.06)
+            svg.circle(-0.18, -0.18, 0.14, fill="#ffffff55")
+
+
+class Diode(TwoLeg):
+    """Rectifier diode (1N4007): black body, grey stripe at the cathode (K) end."""
+    kind = "diode"
+
+    def __init__(self, ref, a, k):
+        super().__init__(ref, "diode", a, k, pins=("A", "K"))
+
+    def draw(self, svg):
+        a, k = self.ab()
+        d = math.dist(a, k)
+        body = min(1.9, max(1.1, d - 0.9))
+        m = _mid(a, k)
+        self.draw_leg(svg, a, m)
+        self.draw_leg(svg, k, m)
+        with svg.g(m, _angle(a, k)):
+            svg.rect(-body / 2, -0.34, body, 0.68, fill="#1d1f22", stroke="#000", sw=0.06, rx=0.15)
+            svg.rect(body / 2 - 0.42, -0.34, 0.22, 0.68, fill="#ced4da")   # stripe = K end
+
+
 class Tilt(TwoLeg):
     kind = "tilt"
     symmetric = True
@@ -307,6 +341,34 @@ class Buzzer(TwoLeg):
             svg.circle(m[0], m[1], 0.35, fill="#0b0d10")
         with svg.g(a, 0):
             svg.text(0, 0, "+", size=1.0, fill="#ffffff", weight="bold")
+
+
+class Transistor(Part):
+    """NPN transistor (PN2222) in a TO-92 case: three legs side by side in one row.
+    With the flat face towards you, the legs are E, B, C from left to right."""
+    kind = "npn"
+
+    def __init__(self, ref, e, b, c, label="PN2222"):
+        super().__init__(ref, label)
+        for leg, h in (("E", e), ("B", b), ("C", c)):
+            self.add_leg(leg, h)
+
+    def label_xy(self):
+        x, y = _xy(self.legs["B"])
+        return (x, y - 2.3)
+
+    def draw(self, svg):
+        pts = [_xy(self.legs[k]) for k in ("E", "B", "C")]
+        x, y = pts[1]
+        for p in pts:
+            self.draw_foot(svg, p)
+        # the case, seen from above: a "D" shape, flat face down (towards you)
+        top = y - 1.55
+        svg.path([("M", x - 1.25, y - 0.45), ("L", x + 1.25, y - 0.45),
+                  ("Q", x + 1.4, top, x, top), ("Q", x - 1.4, top, x - 1.25, y - 0.45), ("Z",)],
+                 fill="#25282c", stroke="#000", sw=0.06)
+        for lbl, p in zip("EBC", pts):
+            svg.text(p[0], y - 0.85, lbl, size=0.45, fill="#e9ecef", weight="bold")
 
 
 class Button(Part):
@@ -512,6 +574,10 @@ MODULES = {
     "rc522":    dict(pins=["SDA", "SCK", "MOSI", "MISO", "IRQ", "GND", "RST", "3.3V"], w=15.8, h=23.6,
                      title="RC522 RFID"),
     "keypad":   dict(pins=["R1", "R2", "R3", "R4", "C1", "C2", "C3", "C4"], w=20.0, h=23.0, title="4×4 keypad"),
+    "ir_tx":    dict(pins=["-", "+", "S"], w=5.6, h=6.0, title="IR transmitter"),
+    # relay board: header S + - at one end, screw terminals NO COM NC at the other
+    "relay":    dict(pins=["S", "+", "-"], w=7.4, h=15.0, title="relay module",
+                     terminals=[("NO", (-1.0, -13.3)), ("COM", (1.0, -13.3)), ("NC", (3.0, -13.3))]),
     "uln2003":  dict(pins=["IN1", "IN2", "IN3", "IN4", "-", "+"], w=13.8, h=12.6, title="ULN2003"),
 }
 
@@ -540,6 +606,13 @@ class Module(Part):
                 self.add_leg(name, Hole(at.board, at.row, at.col + i * step))
             else:
                 self.add_leg(name, Point(round(x, 3), round(y, 3)))
+        # screw terminals elsewhere on the board (modules off the breadboard only)
+        for name, (lx, ly) in spec.get("terminals", []):
+            if isinstance(at, Hole):
+                raise ValueError(f"{ref}: a module with screw terminals must hang off the breadboard")
+            x = self.origin[0] + lx * math.cos(r) - ly * math.sin(r)
+            y = self.origin[1] + lx * math.sin(r) + ly * math.cos(r)
+            self.add_leg(name, Point(round(x, 3), round(y, 3)))
         self.plugged = isinstance(at, Hole)
 
     def label_xy(self):
@@ -643,6 +716,32 @@ class Module(Part):
             fill = "#e03131" if c == 3 else "#f1f3f5"
             svg.rect(kx, ky, 3.6, 4.0, fill=fill, rx=0.4)
             svg.text(kx + 1.8, ky + 2.0, k, size=1.3, fill="#212529", weight="bold")
+
+    def _draw_ir_tx(self, svg, px, w, h):
+        self._board(svg, px, w, h, "#1d1f22")
+        # a clear IR LED lying on the board, pointing up (away from the pins)
+        svg.rect(px - 0.25, -h + 2.6, 0.5, 1.4, fill=LEG)
+        svg.circle(px, -h + 2.1, 0.95, fill="#dbe4ff", stroke="#91a7ff", sw=0.08, opacity=0.95)
+        svg.rect(px - 0.95, -h + 2.1, 1.9, 0.9, fill="#dbe4ff", stroke="#91a7ff", sw=0.08)
+        self._title(svg, px, -1.9, "IR TX", size=0.55)
+
+    def _draw_relay(self, svg, px, w, h):
+        self._board(svg, px, w, h, PCB_BLUE)
+        # the blue relay itself, the little transistor and diode, the red "on" LED
+        svg.rect(px - 2.9, -9.6, 5.8, 6.6, fill="#1971c2", stroke="#0b4f8a", sw=0.1, rx=0.25)
+        svg.text(px, -7.4, "SONGLE", size=0.55, fill="#e7f5ff", weight="bold")
+        svg.text(px, -6.4, "5VDC", size=0.5, fill="#e7f5ff")
+        svg.rect(px - 2.4, -2.4, 0.9, 0.7, fill="#111", rx=0.1)
+        svg.rect(px - 0.9, -2.3, 1.2, 0.5, fill="#111", rx=0.1)
+        svg.rect(px - 0.9 + 0.95, -2.3, 0.2, 0.5, fill="#ced4da")
+        svg.circle(px + 1.9, -2.1, 0.32, fill="#ff6b6b", stroke="#c92a2a", sw=0.05)
+        # green screw terminal block: NO COM NC
+        svg.rect(px - 2.0, -14.5, 6.0, 2.4, fill="#2f9e44", stroke="#1b5e20", sw=0.08, rx=0.15)
+        for name, (lx, ly) in self.spec["terminals"]:
+            svg.circle(lx, ly - 0.2, 0.62, fill="#adb5bd", stroke="#495057", sw=0.06)
+            svg.line(lx - 0.4, ly - 0.2, lx + 0.4, ly - 0.2, stroke="#495057", sw=0.12)
+            svg.text(lx, ly + 1.65, name, size=0.45, fill="#ffffff", weight="bold",
+                     rotate=-90 if len(name) > 2 else 0)
 
     def _draw_uln2003(self, svg, px, w, h):
         self._board(svg, px + 1.5, w, h, "#2f9e44")

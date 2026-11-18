@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draws every lesson's circuit diagrams from lessons/*/circuits.py.
+"""Draws every lesson's circuit diagrams from lessons/*/circuits.py (and appendix/*/circuits.py).
 
 For each circuit it writes two pictures into the lesson's diagrams/ folder:
   NAME.schematic.svg    the formal circuit diagram
@@ -46,6 +46,7 @@ def main():
     args = ap.parse_args()
 
     lessons = sorted(p.parent for p in (ROOT / "lessons").glob("*/circuits.py"))
+    lessons += sorted(p.parent for p in (ROOT / "appendix").glob("*/circuits.py"))
     if args.filters:
         lessons = [d for d in lessons if any(f in d.name for f in args.filters)]
     failed = 0
@@ -64,7 +65,8 @@ def main():
                 failed += 1
             names.add(c.name)
             try:
-                problems = compare(c) + check_sketches(c, d)
+                # an appendix may test its circuits with a lesson's sketch, so it searches the lessons too
+                problems = compare(c) + check_sketches(c, d if d.parent.name == "lessons" else ROOT)
             except Exception as e:  # a schematic that can't be drawn
                 problems = [f"{type(e).__name__}: {e}"]
             if args.list:

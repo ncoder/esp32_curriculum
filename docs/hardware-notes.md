@@ -47,6 +47,9 @@ The ESP32 runs at **3.3 V**. Its pins must never receive 5 V.
 | Servo SG90 | 18 |
 | IR receiver | 14 |
 | 74HC595 | DATA 23, LATCH 19, CLOCK 18 |
+| Thermistor (with 10 kΩ divider) | 34 |
+| IR transmitter | 4 |
+| Relay board | 32 |
 
 A lesson may change these when it needs a lot of pins (the 7-segment and
 keypad lessons do). Each lesson lists its own wiring table.
@@ -61,8 +64,9 @@ keypad lessons do). Each lesson lists its own wiring table.
 | IR remote | NEC protocol. Lesson 18 first prints the codes, so any remote works | |
 | GY-6500 | MPU-6500 accelerometer/gyro at I²C 0x68, read with plain `Wire` | 0x69 if AD0 is high |
 | HC-SR04 | 5 V part: ECHO must go through the divider (1 kΩ from ECHO, 2 kΩ to GND, ESP32 pin in the middle) | |
-| SG90 servo, HC-SR04, PIR, relay | Powered from the ESP32's **5V/VIN** pin, which is the USB 5 V | |
+| SG90 servo, HC-SR04, PIR, relay board | Powered from the ESP32's **5V/VIN** pin, which is the USB 5 V | |
 | DC motor, stepper | Powered from the **power supply module** (set to 5 V), with GND shared with the ESP32 | |
+| Relay board | 5V relay module (S, +, –), on when S is HIGH, powered from VIN (Appendix A10) | A low-level trigger board is on when S is LOW |
 | Buzzers | Active (sealed bottom, beeps on its own) and passive (open bottom, green board, needs `tone()`) | |
 
 ## Breadboard layout
