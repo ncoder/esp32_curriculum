@@ -47,11 +47,10 @@ All pictures use the same layout as the lessons: two breadboards clipped togethe
 | RC522 RFID reader | Lesson 17, §2 | 3V3 only! |
 | IR receiver module + remote | Lesson 18, §2 | |
 | IR transmitter module | **A9** | |
-| 5V relay | **A10** | Needs the transistor and the diode |
-| NPN transistor PN2222 | **A10** | |
-| Diode (rectifier) | **A10** | |
-| Resistors | Lessons 1, 4, 12 and A10 | 220 Ω for LEDs, 10 kΩ for sensor dividers, 1 kΩ + 2 kΩ divider, 1 kΩ for a transistor |
-| Jumper wires, female-to-male wires | | Female-to-male wires join modules (and the relay) to the breadboard |
+| 5V relay board | **A10** | Power from VIN (5 V) |
+| PN2222 transistor, diodes | | Not needed: the relay board has its own built in |
+| Resistors | Lessons 1, 4 and 12 | 220 Ω for LEDs, 10 kΩ for sensor dividers, 1 kΩ + 2 kΩ divider |
+| Jumper wires, female-to-male wires | | Female-to-male wires join modules to the breadboard |
 
 ## A1. Push button
 
@@ -207,31 +206,24 @@ Install the **IRremote** library (see Lesson 18), then:
 !!! tip "Can't tell if it's on?"
     Look at the LED through a phone camera. Many cameras show infrared as a faint purple flicker.
 
-## A10. Relay (with the transistor and the diode)
+## A10. Relay board
 
-A **relay** is a switch worked by a magnet. Current through its **coil** pulls a metal arm across with a *click*, which joins the **COM** pin to the **NO** ("normally open") pin. The coil needs 5 V and about 70 mA, which is far more than an ESP32 pin can give. So the pin switches a **transistor**, and the transistor switches the coil. The **diode** soaks up the kick of voltage the coil gives when it switches off, so the transistor isn't damaged.
+A **relay** is a switch worked by a magnet. When pin **S** goes `HIGH`, current flows through the relay's coil and pulls a metal arm across with a *click*. That joins the **COM** terminal to **NO** ("normally open"). The coil needs more current than an ESP32 pin can give, so the relay board has a small transistor to do the hard work. You only need three wires.
 
-Here the relay switches a red LED, so you can see (and hear) it working.
+The other side of the board has three screw terminals, **NO**, **COM** and **NC**. They are a plain switch, not connected to anything else on the board. Here they switch a red LED, so you can see (and hear) the relay working. Loosen a screw, push a jumper wire's metal end into the hole, and tighten it again.
 
-!!! info "Meet the three new parts"
-    - **PN2222 transistor:** hold it with the **flat face towards you**. The legs are **E** (emitter), **B** (base), **C** (collector), left to right.
-    - **Diode:** current flows one way only. The **stripe** marks the **K** (cathode) end.
-    - **Relay:** the pins are underneath. The two **coil** pins sit either side of **COM**. **NC** and **NO** are at the other end. The relay's top has a small picture of its pins.
+!!! warning "Small voltages only"
+    In class, a relay only ever switches the kit's own 5 V or 9 V. Never connect it to a wall socket.
 
 | ✓ | From | To |
 |---|---|---|
 | [ ] | ESP32 **GND** | board A's **–** rail |
 | [ ] | ESP32 **VIN** (5 V) | board A's **+** rail. *This rail is 5 V now!* |
-| [ ] | PN2222 | three legs in three rows, flat face towards you |
-| [ ] | ESP32 pin **32** | a free row on the other side of the gap (jumper wire) |
-| [ ] | 1 kΩ resistor (brown-black-red) | from that row across the gap to the transistor's **B** row |
-| [ ] | transistor's **E** row | **–** rail |
-| [ ] | diode | from the transistor's **C** row to a free row; **stripe** away from the transistor |
-| [ ] | the diode's stripe row | **+** rail (5 V) |
-| [ ] | relay **coil** pin (C1) | **+** rail (5 V), female-to-male wire |
-| [ ] | relay **coil** pin (C2) | transistor's **C** row, female-to-male wire |
-| [ ] | relay **COM** | **+** rail (5 V), female-to-male wire |
-| [ ] | relay **NO** | a free row, female-to-male wire |
+| [ ] | relay **S** | ESP32 pin **32** (female-to-male wire) |
+| [ ] | relay **+** | **+** rail (5 V), female-to-male wire |
+| [ ] | relay **–** | **–** rail, female-to-male wire |
+| [ ] | terminal **COM** | **+** rail (5 V), jumper wire |
+| [ ] | terminal **NO** | a free row, jumper wire |
 | [ ] | 220 Ω resistor | from the NO row to a free row |
 | [ ] | red LED | long leg in the resistor's row, short leg in the **–** rail |
 
@@ -239,11 +231,8 @@ Here the relay switches a red LED, so you can see (and hear) it working.
 
 @sketch A_Relay
 
-!!! warning "Check the diode before you plug in"
-    The stripe must face the **5 V** side. Backwards, it joins 5 V to GND every time the transistor switches on.
+!!! tip "Clicks the wrong way round?"
+    Some relay boards switch on when S is `LOW`. If yours is on when the sketch says OFF, swap `HIGH` and `LOW` in the sketch.
 
 !!! tip "LED on when the relay is off?"
-    You found **NC** ("normally closed") instead of **NO**. Swap those two wires.
-
-!!! warning "Small voltages only"
-    In class, a relay only ever switches the kit's own 5 V or 9 V. Never connect it to a wall socket.
+    The wire is in **NC** ("normally closed") instead of **NO**. Move it across.

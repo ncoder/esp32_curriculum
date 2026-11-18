@@ -82,21 +82,19 @@ ir.wire("ESP32.4", "U1.S")
 ir.schematic.module("U1", left=[("S", 4)], top=[("+", "3V3")], bottom=[("-", "GND")],
                     title="IR transmitter")
 
-r = Circuit("A_relay", "Relay on pin 32 through a PN2222 transistor; the relay switches a red LED",
+r = Circuit("A_relay", "Relay board: S on pin 32, + to VIN (5 V); it switches a red LED",
             sketches=["A_Relay"])
 gnd_a(r)
 v5_a(r)                                        # A's + rail is 5 V here!
-r.wire("A:h10", "A:h21", bend=0)               # D32 -> the base resistor's row
-r.resistor("R1", "1kΩ", "A:f21", "A:e21")      # across the gap, into the base row
-r.transistor("Q1", e="A:c20", b="A:c21", c="A:c22")   # flat face towards you: E B C
-r.wire("A:d20", "A:-17", bulge=1.6)            # emitter -> GND
-r.diode("D1", a="A:e22", k="A:e24")            # stripe (K) end towards the 5 V row
-r.wire("A:a24", "A:+24")                       # diode's K row -> 5 V
-r.module("K1", "relay", (34.5, 1.0), rotate=90)   # off the board on the right, on female-to-male wires
-r.wire("K1.C1", "A:+30")                       # coil: 5 V ...
-r.wire("K1.C2", "A:d22")                       # ... and the transistor's collector
-r.wire("K1.COM", "A:+28")                      # COM: 5 V
-r.wire("K1.NO", "A:e27")                       # NO -> the LED's resistor
-r.resistor("R2", "220Ω", "A:c27", "A:c29")
-r.led("D2", "red", a="A:a29", k="A:-30")
-r.schematic.relay(32, "R1", "Q1", "K1", "D1", load=["R2", "D2"])
+r.module("K1", "relay", (33.5, 2.0), rotate=90)   # off the board on the right, on female-to-male wires
+r.wire("K1.S", "A:i10", via=[(31.6, 2.0), (31.6, 14.5), (10.0, 14.5)])   # S <- D32
+r.wire("K1.+", "A:+30")                        # + <- 5 V
+r.wire("K1.-", "A:-29")                        # - <- GND
+# the switch side: COM gets 5 V, NO feeds the LED (jumper wires screwed into the terminals)
+r.wire("K1.COM", "A:+27", via=[(49.5, 4.0), (49.5, -2.0), (27.0, -2.0)])
+r.wire("K1.NO", "A:a22", via=[(47.5, 2.0), (47.5, -2.9), (22.0, -2.9)])
+r.resistor("R1", "220Ω", "A:c22", "A:c20")
+r.led("D1", "red", a="A:a20", k="A:-18")
+r.schematic.module("K1", left=[("S", 32)], top=[("+", "5V")], bottom=[("-", "GND")],
+                   right=[("COM", "5V"), ("NO", "chain", ["R1", "D1"], "GND"), ("NC",)],
+                   title="relay module")

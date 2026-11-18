@@ -1,5 +1,5 @@
 // Appendix A: click the relay on and off
-// Pin 32 -> 1k -> PN2222 base. The relay switches the red LED.
+// Relay board: S on pin 32, + to VIN (5 V). It switches the red LED.
 
 const int RELAY_PIN = 32;
 

@@ -575,7 +575,9 @@ MODULES = {
                      title="RC522 RFID"),
     "keypad":   dict(pins=["R1", "R2", "R3", "R4", "C1", "C2", "C3", "C4"], w=20.0, h=23.0, title="4×4 keypad"),
     "ir_tx":    dict(pins=["-", "+", "S"], w=5.6, h=6.0, title="IR transmitter"),
-    "relay":    dict(pins=["C1", "COM", "C2", "NC", "NO"], w=9.4, h=8.2, title="5V relay"),
+    # relay board: header S + - at one end, screw terminals NO COM NC at the other
+    "relay":    dict(pins=["S", "+", "-"], w=7.4, h=15.0, title="relay module",
+                     terminals=[("NO", (-1.0, -13.3)), ("COM", (1.0, -13.3)), ("NC", (3.0, -13.3))]),
     "uln2003":  dict(pins=["IN1", "IN2", "IN3", "IN4", "-", "+"], w=13.8, h=12.6, title="ULN2003"),
 }
 
@@ -604,6 +606,13 @@ class Module(Part):
                 self.add_leg(name, Hole(at.board, at.row, at.col + i * step))
             else:
                 self.add_leg(name, Point(round(x, 3), round(y, 3)))
+        # screw terminals elsewhere on the board (modules off the breadboard only)
+        for name, (lx, ly) in spec.get("terminals", []):
+            if isinstance(at, Hole):
+                raise ValueError(f"{ref}: a module with screw terminals must hang off the breadboard")
+            x = self.origin[0] + lx * math.cos(r) - ly * math.sin(r)
+            y = self.origin[1] + lx * math.sin(r) + ly * math.cos(r)
+            self.add_leg(name, Point(round(x, 3), round(y, 3)))
         self.plugged = isinstance(at, Hole)
 
     def label_xy(self):
@@ -717,16 +726,22 @@ class Module(Part):
         self._title(svg, px, -1.9, "IR TX", size=0.55)
 
     def _draw_relay(self, svg, px, w, h):
-        # a blue Songle relay seen from above; the pins are underneath it
-        svg.rect(px - w / 2, -h + 0.7, w, h, fill="#1971c2", stroke="#0b4f8a", sw=0.1, rx=0.3)
-        svg.text(px, -h + 2.0, "SONGLE", size=0.6, fill="#e7f5ff", weight="bold")
-        svg.text(px, -h + 3.0, "SRD-05VDC-SL-C", size=0.45, fill="#e7f5ff")
-        # the little circuit printed on top: coil + switch
-        y = -h + 4.6
-        svg.rect(px - 3.2, y - 0.5, 1.6, 1.0, stroke="#e7f5ff", sw=0.08)
-        svg.line(px + 0.4, y + 0.6, px + 2.6, y - 0.3, stroke="#e7f5ff", sw=0.1)
-        svg.circle(px + 0.4, y + 0.6, 0.15, fill="#e7f5ff")
-        svg.circle(px + 2.8, y - 0.5, 0.15, fill="#e7f5ff")
+        self._board(svg, px, w, h, PCB_BLUE)
+        # the blue relay itself, the little transistor and diode, the red "on" LED
+        svg.rect(px - 2.9, -9.6, 5.8, 6.6, fill="#1971c2", stroke="#0b4f8a", sw=0.1, rx=0.25)
+        svg.text(px, -7.4, "SONGLE", size=0.55, fill="#e7f5ff", weight="bold")
+        svg.text(px, -6.4, "5VDC", size=0.5, fill="#e7f5ff")
+        svg.rect(px - 2.4, -2.4, 0.9, 0.7, fill="#111", rx=0.1)
+        svg.rect(px - 0.9, -2.3, 1.2, 0.5, fill="#111", rx=0.1)
+        svg.rect(px - 0.9 + 0.95, -2.3, 0.2, 0.5, fill="#ced4da")
+        svg.circle(px + 1.9, -2.1, 0.32, fill="#ff6b6b", stroke="#c92a2a", sw=0.05)
+        # green screw terminal block: NO COM NC
+        svg.rect(px - 2.0, -14.5, 6.0, 2.4, fill="#2f9e44", stroke="#1b5e20", sw=0.08, rx=0.15)
+        for name, (lx, ly) in self.spec["terminals"]:
+            svg.circle(lx, ly - 0.2, 0.62, fill="#adb5bd", stroke="#495057", sw=0.06)
+            svg.line(lx - 0.4, ly - 0.2, lx + 0.4, ly - 0.2, stroke="#495057", sw=0.12)
+            svg.text(lx, ly + 1.65, name, size=0.45, fill="#ffffff", weight="bold",
+                     rotate=-90 if len(name) > 2 else 0)
 
     def _draw_uln2003(self, svg, px, w, h):
         self._board(svg, px + 1.5, w, h, "#2f9e44")

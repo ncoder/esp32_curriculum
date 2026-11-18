@@ -95,8 +95,9 @@ tool says so if you try. The inner rails, under the ESP32 but free from column
 | `c.power_module("PS1", board="B", col=30)` | breadboard power supply on the right-hand end of a board |
 
 Module kinds: `oled`, `dht11`, `ir_rx`, `ir_tx`, `gy6500`, `hcsr04`, `pir`, `joystick`,
-`rc522`, `keypad`, `uln2003`, `relay` (the bare 5V relay, off the board on
-female-to-male wires; `rotate=90` stands it beside the board). Their pins are listed in `MODULES` in
+`rc522`, `keypad`, `uln2003`, `relay` (the relay board: header pins S, +, – and
+screw terminals NO, COM, NC, which wires can reach as `K1.NO` and so on; it must
+hang off the breadboard, and `rotate=90` stands it beside board A). Their pins are listed in `MODULES` in
 `tools/circuits/parts.py`. A new kind needs a pin list there and a small
 `_draw_<kind>` method.
 
@@ -129,7 +130,6 @@ Two things can't share a hole: the tool stops with a message naming both.
 | `s.rgb_led((25, 26, 27), ("R1", "R2", "R3"), "D1")` | three resistors into one RGB LED |
 | `s.module("U1", left=[...], top=[...], bottom=[...], right=[...])` | a block with pins, wired to the ESP32 |
 | `s.bus("I2C", {"SDA": 21, "SCL": 22}, ["U1", "U2"], power={...})` | shared I²C lines with modules underneath |
-| `s.relay(32, "R1", "Q1", "K1", "D1", load=["R2", "D2"])` | pin → base resistor → NPN transistor → relay coil to 5V, diode across the coil; the switch takes 5V from COM to the `load` parts and GND |
 
 `module()` covers chips, displays and sensor modules:
 
