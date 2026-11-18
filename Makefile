@@ -5,7 +5,7 @@
 #   make check            compile all sketches
 #   make circuits         draw + check every lesson's circuit diagrams (lessons/*/diagrams/)
 #   make pdfs             build the handouts in handouts/
-#   make check LESSON=L05 / make pdfs LESSON=L05   just one lesson
+#   make check LESSON=L05 / make pdfs LESSON=L05   just one lesson (LESSON=A-wiring for the appendix)
 #   make upload SKETCH=lessons/L01-hello-esp32/L01_Blink PORT=/dev/cu.usbserial-0001
 
 ARDUINO := tools/arduino
@@ -18,14 +18,14 @@ LESSON  ?=
 BUILD   := .arduino/build
 STAMPS  := .arduino/stamps
 
-LESSON_DIRS := $(patsubst %/lesson.md,%,$(wildcard lessons/*$(LESSON)*/lesson.md))
+LESSON_DIRS := $(patsubst %/lesson.md,%,$(wildcard lessons/*$(LESSON)*/lesson.md appendix/*$(LESSON)*/lesson.md))
 SKETCHES    := $(shell find $(LESSON_DIRS) -name '*.ino' | sort)
 COMPILED    := $(patsubst %.ino,$(STAMPS)/%.ok,$(SKETCHES))
-HANDOUTS    := $(patsubst lessons/%,handouts/%.pdf,$(LESSON_DIRS))
+HANDOUTS    := $(patsubst %,handouts/%.pdf,$(notdir $(LESSON_DIRS)))
 BOOK        := handouts/ESP32-Curriculum-All-Lessons.pdf
 PDF_TOOLS   := tools/build_pdfs.py tools/handout.css
 CIRCUIT_TOOLS := tools/draw_circuits.py $(wildcard tools/circuits/*.py)
-drawn       = $(patsubst %/circuits.py,%/diagrams/.drawn,$(wildcard lessons/$(1)/circuits.py))
+drawn       = $(patsubst %/circuits.py,%/diagrams/.drawn,$(wildcard lessons/$(1)/circuits.py appendix/$(1)/circuits.py))
 DIAGRAMS    := $(patsubst %/circuits.py,%/diagrams/.drawn,$(wildcard $(addsuffix /circuits.py,$(LESSON_DIRS))))
 
 .PHONY: all check circuits pdfs book setup intellisense ports upload monitor clean
@@ -58,12 +58,20 @@ lessons/%/diagrams/.drawn: lessons/%/circuits.py $(CIRCUIT_TOOLS) $$(shell find 
 	@$(PYTHON) tools/draw_circuits.py $(firstword $(subst -, ,$*))
 	@touch $@
 
+appendix/%/diagrams/.drawn: appendix/%/circuits.py $(CIRCUIT_TOOLS) $$(shell find appendix/$$* lessons -name '*.ino')
+	@$(PYTHON) tools/draw_circuits.py $*
+	@touch $@
+
 # One handout per lesson; it embeds the lesson's sketches and circuit pictures, so it depends on them.
 handouts/%.pdf: lessons/%/lesson.md $$(shell find lessons/$$* -name '*.ino') $$(call drawn,$$*) $(PDF_TOOLS)
 	@mkdir -p $(@D)
 	@$(PYTHON) tools/build_pdfs.py --paper $(PAPER) $*
 
-$(BOOK): $(wildcard lessons/*/lesson.md) $(shell find lessons -name '*.ino') $(DIAGRAMS) $(PDF_TOOLS)
+handouts/%.pdf: appendix/%/lesson.md $$(shell find appendix/$$* -name '*.ino') $$(call drawn,$$*) $(PDF_TOOLS)
+	@mkdir -p $(@D)
+	@$(PYTHON) tools/build_pdfs.py --paper $(PAPER) $*
+
+$(BOOK): $(wildcard lessons/*/lesson.md appendix/*/lesson.md) $(shell find lessons appendix -name '*.ino') $(DIAGRAMS) $(PDF_TOOLS)
 	@$(PYTHON) tools/build_pdfs.py --paper $(PAPER) --book
 
 setup:          ## ESP32 core, libraries, Python venv and VS Code IntelliSense, all inside this folder
@@ -82,4 +90,4 @@ monitor:
 	$(ARDUINO) monitor --port $(PORT) --config baudrate=115200
 
 clean:
-	rm -rf $(BUILD) $(STAMPS) lessons/*/diagrams/.drawn
+	rm -rf $(BUILD) $(STAMPS) lessons/*/diagrams/.drawn appendix/*/diagrams/.drawn

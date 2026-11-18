@@ -68,3 +68,13 @@ make pdfs LESSON=L05        # build its handout
 
 Open the PDF and check that the code boxes don't split awkwardly and that the
 handout runs about 4–7 pages.
+
+## Appendices
+
+`appendix/A-wiring-guide/` follows the same layout as a lesson, with `appendix: A`
+in the front matter instead of `lesson:` (no `learn`, `parts` or `plan`). It builds
+to `handouts/A-wiring-guide.pdf` and comes after Lesson 21 in the combined book.
+
+Appendix A lists every part in the kit and points to the lesson section that shows
+it wired up. **When you add or move a lesson's wiring picture, update its table.**
+A part that no lesson shows simply gets its own section there.

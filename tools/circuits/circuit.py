@@ -17,8 +17,8 @@ import math
 
 from . import board as B
 from .board import Hole, Point, RailRef, parse_hole
-from .parts import (Button, Buzzer, Dip, Esp32, Led, Leaded, Ldr, Module, Pot, PowerModule,
-                    Resistor, RgbLed, SevenSeg, Tilt)
+from .parts import (Button, Buzzer, Diode, Dip, Esp32, Led, Leaded, Ldr, Module, Pot, PowerModule,
+                    Resistor, RgbLed, SevenSeg, Thermistor, Tilt, Transistor)
 from .svg import Svg
 
 WIRE_COLORS = {"gnd": "#2b2f33", "3v3": "#f76707", "5v": "#e03131"}
@@ -113,6 +113,15 @@ class Circuit:
 
     def ldr(self, ref, a, b):
         return self._add(Ldr(ref, "photoresistor", self._hole(a), self._hole(b)))
+
+    def thermistor(self, ref, a, b):
+        return self._add(Thermistor(ref, "thermistor", self._hole(a), self._hole(b)))
+
+    def diode(self, ref, a, k):
+        return self._add(Diode(ref, self._hole(a), self._hole(k)))
+
+    def transistor(self, ref, e, b, c):
+        return self._add(Transistor(ref, self._hole(e), self._hole(b), self._hole(c)))
 
     def tilt(self, ref, a, b):
         return self._add(Tilt(ref, "tilt switch", self._hole(a), self._hole(b)))

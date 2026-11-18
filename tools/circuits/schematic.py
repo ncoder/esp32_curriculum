@@ -37,6 +37,8 @@ TWO_LEG = {
     "tilt": (elm.Switch, "1", "2"),
     "ldr": (elm.Photoresistor, "1", "2"),
     "motor": (elm.Motor, "1", "2"),
+    "thermistor": (elm.Thermistor, "1", "2"),
+    "diode": (elm.Diode, "A", "K"),
 }
 
 
@@ -149,6 +151,13 @@ class Schematic:
         self.bands.append(ModuleBand(self, ref, list(left), list(top), list(bottom), list(right), title,
                                      numbers or {}, note))
 
+    def relay(self, gpio, base_resistor, transistor, relay, diode, load=(), supply="5V", contact="5V"):
+        """pin -> base resistor -> NPN transistor, whose collector pulls the relay's coil
+        down to GND; the coil's other end and the diode's K end on `supply`. The switch:
+        `contact` -> COM, NO -> the `load` parts in a row -> GND."""
+        self.bands.append(RelayBand(self, gpio, base_resistor, transistor, relay, diode, list(load),
+                                    supply, contact))
+
     def bus(self, name, lines, refs, power):
         self.bands.append(BusBand(self, name, lines, refs, power))
 
@@ -240,6 +249,10 @@ def two_leg(s, ref, label_side="top"):
         label = f"{ref}\nphotoresistor"
     elif part.kind == "motor":
         label = f"{ref}\nDC motor"
+    elif part.kind == "thermistor":
+        label = f"{ref}\nthermistor"
+    elif part.kind == "diode":
+        label = f"{ref}\ndiode"
     else:
         label = ref
     return cls(), p1, p2, label
@@ -584,3 +597,81 @@ class BusBand(Band):
         for n in names:
             d.add(elm.Line().at((x0, ys[n])).right().tox(max(taps) + 0.6))
             d.add(elm.Label().at((max(taps) + 0.7, ys[n])).label(n, halign="left", fontsize=FONT - 2))
+
+
+class RelayBand(Band):
+    """A relay driven by an NPN transistor, with a diode across the coil."""
+    def __init__(self, s, gpio, rb, q, k, d, load, supply, contact):
+        self.s, self.gpio, self.rb, self.q, self.k, self.d = s, gpio, rb, q, k, d
+        self.load, self.supply, self.contact = load, supply, contact
+        self.refs = {rb, q, k, d} | set(load)
+
+    # base row: GPIO line; collector 0.70 above; coil 2.0 tall from 0.8 above that; top rail 0.8 higher
+    COIL = 2.6
+    DY = 0.70 + 0.8 + COIL + 0.8 + 1.4
+
+    def measure(self):
+        self.rows = [(self.gpio, self.DY)]
+        self.height = self.DY + 0.70 + 1.9
+
+    def draw(self, d, x0, top):
+        s = self.s
+        y = top - self.DY
+        pin = s.circuit.esp32.resolve_pin(str(self.gpio))
+        d.add(elm.Line().at((x0, y)).right().length(0.5))
+        d.add(elm.Resistor().right().label(f"{self.rb}\n{s.part(self.rb).value}", fontsize=FONT - 1))
+        s.join(pin, self.rb, "1")
+        nb = s.new_net()
+        s.join(nb, self.rb, "2")
+        d.add(elm.Line().right().length(0.4))
+        q = d.add(elm.BjtNpn().anchor("base").theta(0)
+                  .label(f"{self.q}\n{s.part(self.q).label}", loc="right", fontsize=FONT - 1))
+        s.join(nb, self.q, "B")
+        end_symbol(d, s, q.absanchors["emitter"], "GND")
+        s.join("GND", self.q, "E")
+        cx, cy = q.absanchors["collector"]
+        # the relay: coil on the left (in1 top, in2 bottom), switch on the right (a top, b bottom)
+        k = d.add(elm.Relay(unit=self.COIL).anchor("in2").at((cx, cy + 0.8)).theta(0))
+        A = k.absanchors
+        d.add(elm.Line().at((cx, cy)).up().toy(A["in2"][1]))
+        nc = s.new_net()
+        for ref, pin_ in ((self.q, "C"), (self.k, "C2"), (self.d, "A")):
+            s.join(nc, ref, pin_)
+        # diode across the coil, K end up (towards the supply)
+        dx = cx - 1.6
+        d.add(elm.Line().at(A["in2"]).left().tox(dx))
+        dd = d.add(elm.Diode().up().toy(A["in1"][1])
+                   .label(f"{self.d}\n{s.part(self.d).label}", loc="top", fontsize=FONT - 1))
+        d.add(elm.Dot().at(A["in2"]))
+        ytop = A["in1"][1] + 0.8
+        d.add(elm.Line().at(A["in1"]).up().toy(ytop))
+        d.add(elm.Line().at(dd.end).up().toy(ytop))
+        if self.contact == self.supply:
+            d.add(elm.Line().at(A["a"]).up().toy(ytop))
+            d.add(elm.Line().at((dx, ytop)).right().tox(A["a"][0]))
+            d.add(elm.Dot().at((A["in1"][0], ytop)))
+            end_symbol(d, s, (A["in1"][0], ytop), self.supply)
+        else:
+            d.add(elm.Line().at((dx, ytop)).right().tox(A["in1"][0]))
+            end_symbol(d, s, (A["in1"][0], ytop), self.supply)
+            d.add(elm.Line().at(A["a"]).up().toy(ytop))
+            end_symbol(d, s, (A["a"][0], ytop), self.contact)
+        s.join(self.supply, self.k, "C1")
+        s.join(self.supply, self.d, "K")
+        s.join(self.contact, self.k, "COM")
+        d.add(elm.Label().at((A["b"][0] + 0.9, (A["a"][1] + A["b"][1]) / 2))
+              .label(f"{self.k}\n{s.part(self.k).label}", halign="left", fontsize=FONT - 1))
+        # NO -> the load -> GND
+        net = s.new_net()
+        s.join(net, self.k, "NO")
+        d.add(elm.Line().at(A["b"]).down().length(0.5))
+        d.add(elm.Line().right().length(1.6))
+        for ref in self.load:
+            e, p1, p2, label = two_leg(s, ref)
+            d.add(e.right().label(label, fontsize=FONT - 1, ofst=0.3 if s.part(ref).kind == "led" else None))
+            s.join(net, ref, p1)
+            net = s.new_net()
+            s.join(net, ref, p2)
+        d.add(elm.Line().right().length(0.4))
+        end_symbol(d, s, d.here, "GND")
+        s.terms.setdefault("GND", set()).update(s.terms.pop(net))

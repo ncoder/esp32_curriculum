@@ -267,6 +267,40 @@ class Ldr(TwoLeg):
                      closed=False, stroke="#c0392b", sw=0.09)
 
 
+class Thermistor(TwoLeg):
+    """NTC thermistor: a small black bead (or a little disc) on two legs."""
+    kind = "thermistor"
+    symmetric = True
+
+    def draw(self, svg):
+        a, b = self.ab()
+        m = _mid(a, b)
+        self.draw_leg(svg, a, m)
+        self.draw_leg(svg, b, m)
+        with svg.g(m, _angle(a, b)):
+            svg.circle(0, 0, 0.62, fill="#2b2f33", stroke="#000", sw=0.06)
+            svg.circle(-0.18, -0.18, 0.14, fill="#ffffff55")
+
+
+class Diode(TwoLeg):
+    """Rectifier diode (1N4007): black body, grey stripe at the cathode (K) end."""
+    kind = "diode"
+
+    def __init__(self, ref, a, k):
+        super().__init__(ref, "diode", a, k, pins=("A", "K"))
+
+    def draw(self, svg):
+        a, k = self.ab()
+        d = math.dist(a, k)
+        body = min(1.9, max(1.1, d - 0.9))
+        m = _mid(a, k)
+        self.draw_leg(svg, a, m)
+        self.draw_leg(svg, k, m)
+        with svg.g(m, _angle(a, k)):
+            svg.rect(-body / 2, -0.34, body, 0.68, fill="#1d1f22", stroke="#000", sw=0.06, rx=0.15)
+            svg.rect(body / 2 - 0.42, -0.34, 0.22, 0.68, fill="#ced4da")   # stripe = K end
+
+
 class Tilt(TwoLeg):
     kind = "tilt"
     symmetric = True
@@ -307,6 +341,34 @@ class Buzzer(TwoLeg):
             svg.circle(m[0], m[1], 0.35, fill="#0b0d10")
         with svg.g(a, 0):
             svg.text(0, 0, "+", size=1.0, fill="#ffffff", weight="bold")
+
+
+class Transistor(Part):
+    """NPN transistor (PN2222) in a TO-92 case: three legs side by side in one row.
+    With the flat face towards you, the legs are E, B, C from left to right."""
+    kind = "npn"
+
+    def __init__(self, ref, e, b, c, label="PN2222"):
+        super().__init__(ref, label)
+        for leg, h in (("E", e), ("B", b), ("C", c)):
+            self.add_leg(leg, h)
+
+    def label_xy(self):
+        x, y = _xy(self.legs["B"])
+        return (x, y - 2.3)
+
+    def draw(self, svg):
+        pts = [_xy(self.legs[k]) for k in ("E", "B", "C")]
+        x, y = pts[1]
+        for p in pts:
+            self.draw_foot(svg, p)
+        # the case, seen from above: a "D" shape, flat face down (towards you)
+        top = y - 1.55
+        svg.path([("M", x - 1.25, y - 0.45), ("L", x + 1.25, y - 0.45),
+                  ("Q", x + 1.4, top, x, top), ("Q", x - 1.4, top, x - 1.25, y - 0.45), ("Z",)],
+                 fill="#25282c", stroke="#000", sw=0.06)
+        for lbl, p in zip("EBC", pts):
+            svg.text(p[0], y - 0.85, lbl, size=0.45, fill="#e9ecef", weight="bold")
 
 
 class Button(Part):
@@ -512,6 +574,8 @@ MODULES = {
     "rc522":    dict(pins=["SDA", "SCK", "MOSI", "MISO", "IRQ", "GND", "RST", "3.3V"], w=15.8, h=23.6,
                      title="RC522 RFID"),
     "keypad":   dict(pins=["R1", "R2", "R3", "R4", "C1", "C2", "C3", "C4"], w=20.0, h=23.0, title="4×4 keypad"),
+    "ir_tx":    dict(pins=["-", "+", "S"], w=5.6, h=6.0, title="IR transmitter"),
+    "relay":    dict(pins=["C1", "COM", "C2", "NC", "NO"], w=9.4, h=8.2, title="5V relay"),
     "uln2003":  dict(pins=["IN1", "IN2", "IN3", "IN4", "-", "+"], w=13.8, h=12.6, title="ULN2003"),
 }
 
@@ -643,6 +707,26 @@ class Module(Part):
             fill = "#e03131" if c == 3 else "#f1f3f5"
             svg.rect(kx, ky, 3.6, 4.0, fill=fill, rx=0.4)
             svg.text(kx + 1.8, ky + 2.0, k, size=1.3, fill="#212529", weight="bold")
+
+    def _draw_ir_tx(self, svg, px, w, h):
+        self._board(svg, px, w, h, "#1d1f22")
+        # a clear IR LED lying on the board, pointing up (away from the pins)
+        svg.rect(px - 0.25, -h + 2.6, 0.5, 1.4, fill=LEG)
+        svg.circle(px, -h + 2.1, 0.95, fill="#dbe4ff", stroke="#91a7ff", sw=0.08, opacity=0.95)
+        svg.rect(px - 0.95, -h + 2.1, 1.9, 0.9, fill="#dbe4ff", stroke="#91a7ff", sw=0.08)
+        self._title(svg, px, -1.9, "IR TX", size=0.55)
+
+    def _draw_relay(self, svg, px, w, h):
+        # a blue Songle relay seen from above; the pins are underneath it
+        svg.rect(px - w / 2, -h + 0.7, w, h, fill="#1971c2", stroke="#0b4f8a", sw=0.1, rx=0.3)
+        svg.text(px, -h + 2.0, "SONGLE", size=0.6, fill="#e7f5ff", weight="bold")
+        svg.text(px, -h + 3.0, "SRD-05VDC-SL-C", size=0.45, fill="#e7f5ff")
+        # the little circuit printed on top: coil + switch
+        y = -h + 4.6
+        svg.rect(px - 3.2, y - 0.5, 1.6, 1.0, stroke="#e7f5ff", sw=0.08)
+        svg.line(px + 0.4, y + 0.6, px + 2.6, y - 0.3, stroke="#e7f5ff", sw=0.1)
+        svg.circle(px + 0.4, y + 0.6, 0.15, fill="#e7f5ff")
+        svg.circle(px + 2.8, y - 0.5, 0.15, fill="#e7f5ff")
 
     def _draw_uln2003(self, svg, px, w, h):
         self._board(svg, px + 1.5, w, h, "#2f9e44")

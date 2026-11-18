@@ -9,3 +9,4 @@ handouts/*.html
 
 # drawing stamps
 lessons/*/diagrams/.drawn
+appendix/*/diagrams/.drawn

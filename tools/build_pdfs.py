@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Builds the printable student handouts (one PDF per lesson) from lessons/*/lesson.md.
+"""Builds the printable student handouts (one PDF per lesson) from lessons/*/lesson.md,
+plus the appendices in appendix/*/lesson.md (front matter `appendix: A` instead of `lesson: N`),
+which come after the lessons in the combined book.
 
 Each lesson.md starts with YAML front matter (title, parts, plan, ...) followed by
 Markdown. A line containing only `@sketch NAME` is replaced by the exact contents
@@ -32,6 +34,7 @@ from pygments.lexers import get_lexer_by_name
 
 ROOT = Path(__file__).resolve().parent.parent
 LESSONS = ROOT / "lessons"
+APPENDIX = ROOT / "appendix"
 OUT = ROOT / "handouts"
 CSS = ROOT / "tools" / "handout.css"
 MAX_CODE_LINE = 72  # longer lines wrap on paper and are hard to copy
@@ -164,7 +167,24 @@ def inline(text):
     return markdown.markdown(str(text)).removeprefix("<p>").removesuffix("</p>")
 
 
+def footer_text(fm):
+    if "appendix" in fm:
+        return f"Appendix {fm['appendix']}: {fm['title']}"
+    return f"Lesson {int(fm['lesson'])}: {fm['title']}"
+
+
 def cover(fm):
+    if "appendix" in fm:
+        return f"""
+<header class="cover">
+  <div class="badge"><small>APPENDIX</small>{html.escape(str(fm['appendix']))}</div>
+  <div class="titles">
+    <div class="kit">ESP32 Super Starter Kit &middot; reference</div>
+    <h1>{html.escape(fm['title'])}</h1>
+    <p class="tagline">{inline(fm.get('tagline', ''))}</p>
+  </div>
+</header>
+"""
     num = int(fm["lesson"])
     parts = "".join(f"<li>{BOX}{inline(p)}</li>" for p in fm.get("parts", []))
     learn = "".join(f"<li>{inline(x)}</li>" for x in fm.get("learn", []))
@@ -193,7 +213,7 @@ def cover(fm):
 def lesson_html(lesson_dir):
     fm, body = split_front_matter((lesson_dir / "lesson.md").read_text())
     body, warnings = expand_sketches(body, lesson_dir)
-    footer = f"Lesson {int(fm['lesson'])}: {fm['title']}"
+    footer = footer_text(fm)
     article = f'<article class="lesson" data-footer="{html.escape(footer)}">{cover(fm)}{render_md(body)}</article>'
     return fm, article, warnings
 
@@ -228,6 +248,8 @@ def main():
     chrome = find_chrome()
     OUT.mkdir(exist_ok=True)
     dirs = sorted(d for d in LESSONS.iterdir() if (d / "lesson.md").exists())
+    if APPENDIX.is_dir():
+        dirs += sorted(d for d in APPENDIX.iterdir() if (d / "lesson.md").exists())
     if args.filters:
         dirs = [d for d in dirs if any(f in d.name for f in args.filters)]
 
@@ -239,7 +261,7 @@ def main():
         if args.book:
             continue
         pdf = OUT / f"{d.name}.pdf"
-        footer = f"Lesson {int(fm['lesson'])}: {fm['title']}"
+        footer = footer_text(fm)
         print_pdf(chrome, page(fm["title"], [article], args.paper, footer), pdf, args.html)
         print(f"wrote {pdf.relative_to(ROOT)}")
 

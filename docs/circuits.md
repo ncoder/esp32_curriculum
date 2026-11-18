@@ -20,6 +20,10 @@ The pictures land in `lessons/LNN-name/diagrams/NAME.schematic.svg` and
 `lesson.md`, put `@circuit NAME` on its own line, usually right after the wiring
 table, to show both pictures in the handout.
 
+Appendices work the same way: `appendix/A-wiring-guide/circuits.py` is drawn by
+`make circuits` too. An appendix circuit may list a lesson's sketch in `sketches`
+(the check finds it in `lessons/`).
+
 ## A first example
 
 ```python
@@ -78,6 +82,9 @@ tool says so if you try. The inner rails, under the ESP32 but free from column
 | `c.button("SW1", "A:e21", width=2)` | push button across the gap (top-left leg in row e) |
 | `c.pot("RV1", left, middle, right, side="up")` | potentiometer; the knob is drawn above or below |
 | `c.ldr("LDR1", a, b)`, `c.tilt("S1", a, b)` | photoresistor, tilt switch |
+| `c.thermistor("TH1", a, b)` | thermistor |
+| `c.diode("D1", a=..., k=...)` | rectifier diode: `k` is the striped end |
+| `c.transistor("Q1", e=, b=, c=)` | PN2222 (TO-92), three legs side by side, flat face towards you |
 | `c.buzzer("BZ1", plus, minus, active=False)` | buzzer |
 | `c.chip("U1", "74HC595", "B:f22")` | 16-leg chip across the gap, notch left, pin 1 in row f (`L293D` too) |
 | `c.display("U1", "B:h24", digits=1)` | 1- or 4-digit 7-segment display, pin 1 in row f–i |
@@ -87,8 +94,9 @@ tool says so if you try. The inner rails, under the ESP32 but free from column
 | `c.motor("M1", body=(x, y), a=, b=)` | DC motor |
 | `c.power_module("PS1", board="B", col=30)` | breadboard power supply on the right-hand end of a board |
 
-Module kinds: `oled`, `dht11`, `ir_rx`, `gy6500`, `hcsr04`, `pir`, `joystick`,
-`rc522`, `keypad`, `uln2003`. Their pins are listed in `MODULES` in
+Module kinds: `oled`, `dht11`, `ir_rx`, `ir_tx`, `gy6500`, `hcsr04`, `pir`, `joystick`,
+`rc522`, `keypad`, `uln2003`, `relay` (the bare 5V relay, off the board on
+female-to-male wires; `rotate=90` stands it beside the board). Their pins are listed in `MODULES` in
 `tools/circuits/parts.py`. A new kind needs a pin list there and a small
 `_draw_<kind>` method.
 
@@ -121,6 +129,7 @@ Two things can't share a hole: the tool stops with a message naming both.
 | `s.rgb_led((25, 26, 27), ("R1", "R2", "R3"), "D1")` | three resistors into one RGB LED |
 | `s.module("U1", left=[...], top=[...], bottom=[...], right=[...])` | a block with pins, wired to the ESP32 |
 | `s.bus("I2C", {"SDA": 21, "SCL": 22}, ["U1", "U2"], power={...})` | shared I²C lines with modules underneath |
+| `s.relay(32, "R1", "Q1", "K1", "D1", load=["R2", "D2"])` | pin → base resistor → NPN transistor → relay coil to 5V, diode across the coil; the switch takes 5V from COM to the `load` parts and GND |
 
 `module()` covers chips, displays and sensor modules:
 
