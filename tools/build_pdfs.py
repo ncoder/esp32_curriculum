@@ -83,6 +83,7 @@ def code_block(source, name):
 
 FIG_WIDTH = 6.9      # inches of page width for a circuit figure
 FIG_MAX_H = 5.0      # tallest a circuit figure may be, in inches
+BB_MIN_W = 3.6       # narrowest the breadboard picture may be, in inches
 
 
 def svg_size(text):
@@ -104,11 +105,19 @@ def circuit_block(lesson_dir, name):
         views.append((caption, text, w / h))
     title = re.search(r"<title>(.*?)</title>", views[1][1])
     gap = 0.25
-    height = min(FIG_MAX_H, (FIG_WIDTH - gap) / sum(a for _, _, a in views))
+    a_sch, a_bb = views[0][2], views[1][2]
+    # Same height for both if that leaves the breadboard picture big enough to read;
+    # otherwise give the breadboard BB_MIN_W and fit the schematic in what's left.
+    height = min(FIG_MAX_H, (FIG_WIDTH - gap) / (a_sch + a_bb))
+    widths = [a_sch * height, a_bb * height]
+    if widths[1] < BB_MIN_W:
+        bb_h = min(FIG_MAX_H, BB_MIN_W / a_bb)
+        widths[1] = a_bb * bb_h
+        widths[0] = min(FIG_WIDTH - gap - widths[1], a_sch * bb_h)
     figs = []
-    for caption, text, aspect in views:
+    for (caption, text, aspect), w in zip(views, widths):
         uri = "data:image/svg+xml;base64," + base64.b64encode(text.encode()).decode()
-        figs.append(f'<figure style="width:{aspect * height:.2f}in"><img src="{uri}" alt="{caption}">'
+        figs.append(f'<figure style="width:{w:.2f}in"><img src="{uri}" alt="{caption}">'
                     f'<figcaption>{caption}</figcaption></figure>')
     head = f'<div class="circuit-title">{title.group(1) if title else name}</div>' if title else ""
     return f'<div class="circuit">{head}<div class="circuit-views">{"".join(figs)}</div></div>'

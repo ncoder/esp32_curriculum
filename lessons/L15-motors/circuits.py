@@ -12,9 +12,9 @@ c.wire("B:j28", "B:+28")                    # leg 8 (motor power) -> + rail
 c.wire("B:j24", "B:-24")                    # legs 4 and 5 -> - rail
 c.wire("B:j25", "B:-26")
 # ESP32 -> chip: three wires round the antenna end of the ESP32, in nested lanes
-c.wire("A:i11", "B:g21", via=[(20.0, 14.0), (20.0, 31.0)])   # leg 1 (EN)  <- 25
-c.wire("A:h10", "B:h22", via=[(20.35, 13.0), (20.35, 32.0)])  # leg 2 (IN1) <- 26
-c.wire("A:g9", "B:i27", via=[(20.7, 12.0), (20.7, 33.0)])     # leg 7 (IN2) <- 27
+c.wire("A:i8", "B:g21", via=[(19.7, 14.0), (19.7, 31.0)])    # leg 1 (EN)  <- 25
+c.wire("A:h7", "B:h22", via=[(20.0, 13.0), (20.0, 32.0)])    # leg 2 (IN1) <- 26
+c.wire("A:g6", "B:i27", via=[(20.3, 12.0), (20.3, 33.0)])    # leg 7 (IN2) <- 27
 c.motor("M1", body=(24.5, 44.0), a="B:j23", b="B:j26", rotate=-90)   # legs 3 and 6
 c.schematic.module("PS1", right=[("+", "VM"), ("-", "GND")], title="power module (5 V)")
 c.schematic.module("U1", left=[("EN1", 25), ("IN1", 26), ("IN2", 27)], top=[("VCC", "VM"), ("VS", "VM")],
@@ -28,7 +28,7 @@ s.power_module("PS1", board="B", col=30)
 gnd_b(s)
 s.module("U2", "uln2003", (24, 41.5), rotate=180)   # pins right to left: IN1 24 ... + 19
 # Each IN wire runs straight up, then left along its own row to the ESP32 pin: no crossings.
-for k, (hole, y) in enumerate((("B:b8", 24), ("B:c9", 25), ("B:d11", 26), ("B:e12", 27))):
+for k, (hole, y) in enumerate((("B:b6", 24), ("B:c7", 25), ("B:d9", 26), ("B:e10", 27))):
     s.wire(f"U2.IN{k + 1}", hole, via=[(24 - k, y)])
 s.wire("U2.-", "B:-20")
 s.wire("U2.+", "B:+18")

@@ -6,8 +6,11 @@ through the course.
 
 ## The board
 
-The kit's board is an ESP32-WROOM-32 dev board with a CP2102 USB chip and a
-USB-C socket. In the Arduino IDE, choose **Tools → Board → esp32 → ESP32 Dev
+The kit's board is ELEGOO's **ESP32 DevKit V1**: the 30-pin board (15 pins a
+side) with an ESP32-WROOM-32 module, a USB-C socket, and the **EN** and **BOOT**
+buttons on either side of the socket. The board prints most pin numbers with a
+**D** in front (pin 26 is **D26**), pins 16 and 17 as **RX2** and **TX2**, and the
+5 V pin as **VIN**. In the Arduino IDE, choose **Tools → Board → esp32 → ESP32 Dev
 Module** (core: *esp32 by Espressif Systems*, version 3.x). If uploads stall
 at `Connecting...`, hold **BOOT** until the upload starts.
 
@@ -70,7 +73,7 @@ breadboard. One reviewer suggests removing one power rail strip so the two
 boards sit flush.
 
 The handout pictures always use the same layout: board A on top, board B below,
-USB socket on the left, the ESP32's pins in columns 1–19 (top row in board A's
-row j, bottom row in board B's row a). The pin order is that of the 38-pin
-DevKit (5V next to the USB socket on the top row, 3V3 at the far end). See
-[circuits.md](circuits.md) to change it if the kit's board differs.
+USB socket on the left, the ESP32's pins in columns 1–15 (top row in board A's
+row j, bottom row in board B's row a). With the USB socket on the left, the top
+row reads VIN, GND, D13 … EN and the bottom row 3V3, GND, D15 … D23. See
+[circuits.md](circuits.md) to change it if a board differs.

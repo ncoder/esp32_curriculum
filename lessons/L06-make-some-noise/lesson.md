@@ -123,6 +123,8 @@ Put 5 buttons in a row across the middle gap, like piano keys. Each button conne
 | [ ] | 4 | **17** | – rail | F |
 | [ ] | 5 | **18** | – rail | G |
 
+Pins 16 and 17 are labelled **RX2** and **TX2** on the board.
+
 @circuit L06_piano
 
 !!! tip "Running out of room?"

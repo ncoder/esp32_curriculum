@@ -49,7 +49,7 @@ This is the same idea as the LED from Lesson 1, done three times. Each LED gets 
 @circuit L02_traffic
 
 !!! tip "Keep it tidy"
-    Put the LEDs in a line like in the picture, one empty hole between them, so the legs don't touch. The outer resistors lean over by one column to reach them.
+    Put the LEDs in a line like in the picture, one empty hole between them, so the legs don't touch. The resistors lean over to reach them.
 
 ## 3. Sketch 1: A traffic light
 

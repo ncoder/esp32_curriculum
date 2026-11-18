@@ -1,17 +1,13 @@
 """Lesson 4 circuits: a knob on pin 34, then a light sensor on pin 35."""
 from circuits import Circuit
-from circuits.kit import gnd_a, traffic_leds, v33_a
+from circuits.kit import gnd_a, pot_a, traffic_leds, v33_a
 
 c = Circuit("L04_knob", "Potentiometer on pin 34 (LEDs from Lesson 2 still in place)",
             sketches=["L04_ReadKnob", "L04_SpeedKnob"])
 traffic_leds(c)
 gnd_a(c)
 v33_a(c)
-c.pot("RV1", "A:e22", "A:e23", "A:e24", side="down")
-c.wire("RV1.1", "A:+")
-c.wire("RV1.2", "A:-")
-c.wire("ESP32.34", "RV1.W")
-c.schematic.pot(34, "RV1")
+pot_a(c)
 
 d = c.copy("L04_light", "Photoresistor + 10 kΩ divider on pin 35", sketches=["L04_NightLight"])
 d.ldr("LDR1", "A:a16", "A:+16")                 # one leg straight into the + rail

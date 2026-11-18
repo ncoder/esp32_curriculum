@@ -42,27 +42,30 @@ the sketches that run on this circuit; the check makes sure their pins are wired
 
 Board **A** is on top, board **B** below, and the ESP32 lies across the join
 with its USB socket on the left. Its top row of pins is in row **j** of board A,
-and its bottom row is in row **a** of board B, in columns 1–19:
+and its bottom row is in row **a** of board B, in columns 1–15:
 
 ```
-board A row j:  5V CMD SD3 SD2 13 GND 12 14 27 26 25 33 32 35 34 VN VP EN 3V3   (columns 1-19)
-board B row a:  CLK SD0 SD1 15 2 0 4 16 17 5 18 19 GND 21 RX TX 22 23 GND      (columns 1-19)
+board A row j:  VIN GND D13 D12 D14 D27 D26 D25 D33 D32 D35 D34 VN VP EN       (columns 1-15)
+board B row a:  3V3 GND D15 D2  D4  RX2 TX2 D5  D18 D19 D21 RX0 TX0 D22 D23    (columns 1-15)
 ```
+
+`tools/circuits/kit.py` has the same table as `COL`, so `col(26)` gives 7.
 
 So each top-row pin has 4 free holes above it (rows f–i of board A), and each
 bottom-row pin has 4 free holes below it (rows b–e of board B). The rest of the
 space is free: board A's rows a–e, board B's rows f–j, and both boards'
-columns 20–30.
+columns 16–30. The 3V3 pin is on the bottom row: `kit.v33_b` wires it to board
+B's + rail, and `kit.v33_a` takes it round the USB end to board A's + rail.
 
-This is the 38-pin ESP32 DevKit. If the kit's board has a different pin order,
-change `ESP32_TOP` and `ESP32_BOTTOM` in `tools/circuits/parts.py` and run
-`make circuits`. Every picture is redrawn.
+This is ELEGOO's 30-pin ESP32 DevKit V1. For a board with a different pin order,
+change `ESP32_TOP` and `ESP32_BOTTOM` in `tools/circuits/parts.py` (and `COL`
+in `kit.py`), then re-place the parts and run `make circuits`.
 
 **Hole names:** `A:c12` is board A, row c, column 12. The outer rails are
 `A:+12`, `A:-12` (the top edge of board A) and `B:+12`, `B:-12` (the bottom edge
 of board B). The rails have no holes at columns 1, 7, 13, 19 and 25, and the
 tool says so if you try. The inner rails, under the ESP32 but free from column
-22 on, are `A:bn22`/`A:bp22` (board A's bottom −/+) and `B:tn22`/`B:tp22`
+20 on, are `A:bn22`/`A:bp22` (board A's bottom −/+) and `B:tn22`/`B:tp22`
 (board B's top −/+).
 
 ## Parts

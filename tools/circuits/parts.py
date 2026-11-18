@@ -91,20 +91,26 @@ class Part:
 
 
 # ================================================================ the ESP32
-# 38-pin ESP32-WROOM-32 DevKit, lying across the two boards with USB on the left.
-# Top row (board A, row j), columns 1-19:
-ESP32_TOP = ["5V", "CMD", "SD3", "SD2", "13", "GND", "12", "14", "27", "26",
-             "25", "33", "32", "35", "34", "VN", "VP", "EN", "3V3"]
-# Bottom row (board B, row a), columns 1-19:
-ESP32_BOTTOM = ["CLK", "SD0", "SD1", "15", "2", "0", "4", "16", "17", "5",
-                "18", "19", "GND", "21", "RX", "TX", "22", "23", "GND"]
-ESP32_ALIASES = {"VIN": "5V", "VP": "36", "VN": "39", "RX": "3", "TX": "1"}
+# ELEGOO's board: "ESP32 DEVKIT V1", 30 pins (15 a side), USB-C with the EN and BOOT
+# buttons on either side of it. It lies across the two boards with USB on the left.
+# Labels exactly as printed on the board. Top row (board A, row j), columns 1-15:
+ESP32_TOP = ["VIN", "GND", "D13", "D12", "D14", "D27", "D26", "D25", "D33", "D32",
+             "D35", "D34", "VN", "VP", "EN"]
+# Bottom row (board B, row a), columns 1-15:
+ESP32_BOTTOM = ["3V3", "GND", "D15", "D2", "D4", "RX2", "TX2", "D5", "D18", "D19",
+                "D21", "RX0", "TX0", "D22", "D23"]
+# printed label -> logical pin (GPIO number or power)
+ESP32_ALIASES = {"VIN": "5V", "VP": "36", "VN": "39", "RX0": "3", "TX0": "1", "RX2": "16", "TX2": "17"}
 POWER_PINS = ("GND", "3V3", "5V")
+NPINS = len(ESP32_TOP)
+PCB_X0, PCB_X1 = -0.9, NPINS + 4.4      # the board sticks out past the last pin (antenna end)
 
 
 def esp32_pin_name(label):
-    """'26' -> 'GPIO26', 'GND' -> 'GND', 'VP' -> 'GPIO36'."""
+    """'D26' -> 'GPIO26', 'RX2' -> 'GPIO16', 'GND' -> 'GND', 'VIN' -> '5V'."""
     label = ESP32_ALIASES.get(label, label)
+    if label.startswith("D") and label[1:].isdigit():
+        label = label[1:]
     return f"GPIO{label}" if label.isdigit() else label
 
 
@@ -112,33 +118,41 @@ class Esp32(Part):
     kind = "esp32"
 
     def __init__(self, ref="ESP32"):
-        super().__init__(ref, "ESP32 DevKit")
+        super().__init__(ref, "ESP32 DevKit V1")
         for i, name in enumerate(ESP32_TOP, 1):
             self.add_leg(f"T{i}", Hole("A", "j", i), esp32_pin_name(name))
         for i, name in enumerate(ESP32_BOTTOM, 1):
             self.add_leg(f"B{i}", Hole("B", "a", i), esp32_pin_name(name))
 
     def resolve_pin(self, text):
-        """'26', 'GPIO26', 'GND', '3V3', '5V', 'VIN' -> logical pin name."""
-        t = text.upper().replace("GPIO", "").replace("IO", "")
-        t = {"VIN": "5V", "3.3V": "3V3"}.get(t, t)
+        """'26', 'D26', 'GPIO26', 'GND', '3V3', '5V', 'VIN', 'RX2' -> logical pin name."""
+        t = text.upper()
+        t = ESP32_ALIASES.get(t, t)
+        t = t.replace("GPIO", "")
+        if t.startswith("D") and t[1:].isdigit():
+            t = t[1:]
+        t = {"3.3V": "3V3"}.get(t, t)
         name = f"GPIO{t}" if t.isdigit() else t
         if name not in self.leg_pin.values():
             raise ValueError(f"the ESP32 has no pin {text!r}")
         return name
 
     def label_xy(self):
-        return (13.0, 19.0)
+        return (10.0, 19.0)
 
     def draw(self, svg):
         ytop = BOARD_Y0["A"] + ROW_Y["j"]
         ybot = BOARD_Y0["B"] + ROW_Y["a"]
         y0, y1 = ytop - 0.75, ybot + 0.75
-        # USB-C socket overhangs the left edge
-        svg.rect(-1.9, (y0 + y1) / 2 - 1.15, 2.3, 2.3, fill="#c3c8ce", stroke="#7d848c", sw=0.08, rx=0.35)
-        svg.rect(-1.75, (y0 + y1) / 2 - 0.45, 1.0, 0.9, fill="#5f666e", rx=0.3)
-        # board
-        svg.rect(-0.55, y0, 22.3, y1 - y0, fill="#20242a", stroke="#0b0d10", sw=0.1, rx=0.45)
+        ym = (y0 + y1) / 2
+        # USB-C socket overhangs the left edge, with EN and BOOT on either side of it
+        svg.rect(PCB_X0 - 1.1, ym - 1.0, 2.0, 2.0, fill="#c3c8ce", stroke="#7d848c", sw=0.08, rx=0.3)
+        svg.rect(PCB_X0 - 1.0, ym - 0.4, 0.9, 0.8, fill="#5f666e", rx=0.3)
+        svg.rect(PCB_X0, y0, PCB_X1 - PCB_X0, y1 - y0, fill="#20242a", stroke="#0b0d10", sw=0.1, rx=0.45)
+        for by, lbl, ly in ((ym - 2.05, "EN", ym - 1.25), (ym + 2.05, "BOOT", ym + 1.25)):
+            svg.rect(PCB_X0 + 0.15, by - 0.5, 1.0, 1.0, fill="#c3c8ce", rx=0.12)
+            svg.circle(PCB_X0 + 0.65, by, 0.3, fill="#495057")
+            svg.text(PCB_X0 + 1.3, ly, lbl, size=0.36, fill="#ced4da", anchor="start")
         # header pins and their printed labels
         for i, name in enumerate(ESP32_TOP, 1):
             svg.rect(i - 0.38, ytop - 0.38, 0.76, 0.76, fill="#30353c")
@@ -148,22 +162,18 @@ class Esp32(Part):
             svg.rect(i - 0.38, ybot - 0.38, 0.76, 0.76, fill="#30353c")
             svg.circle(i, ybot, 0.2, fill="#d4af37")
             svg.text(i, ybot - 1.25, name, size=0.52, fill="#f1f3f5", rotate=-90, weight="bold")
-        ym = (y0 + y1) / 2
-        # EN and BOOT buttons, USB chip, power LED
-        for by, lbl in ((ym - 1.3, "EN"), (ym + 1.3, "BOOT")):
-            svg.rect(1.0, by - 0.55, 1.1, 1.1, fill="#c3c8ce", rx=0.15)
-            svg.circle(1.55, by, 0.33, fill="#495057")
-            svg.text(2.75, by, lbl, size=0.42, fill="#ced4da", anchor="start")
-        svg.rect(4.6, ym - 0.75, 1.5, 1.5, fill="#0b0d10", stroke="#495057", sw=0.05)
-        svg.circle(7.0, ym + 1.5, 0.22, fill="#ff6b6b")
-        # WROOM module: metal can + antenna
-        svg.rect(8.2, ym - 2.15, 13.2, 4.3, fill="#1a1d21", rx=0.2)
-        svg.rect(8.4, ym - 1.95, 9.6, 3.9, fill="#c9cdd2", stroke="#9aa1a9", sw=0.06, rx=0.15)
-        svg.text(13.2, ym - 0.45, "ESP32", size=0.95, fill="#495057", weight="bold")
-        svg.text(13.2, ym + 0.75, "WROOM-32", size=0.55, fill="#6c757d")
-        zig = [(18.5, ym + 1.4)]
+        # USB chip, power LED, the blue LED on GPIO2
+        svg.rect(2.2, ym - 0.7, 1.4, 1.4, fill="#0b0d10", stroke="#495057", sw=0.05)
+        svg.circle(4.4, ym - 1.1, 0.2, fill="#ff6b6b")
+        svg.circle(4.4, ym + 1.1, 0.2, fill="#4dabf7")
+        # WROOM-32 module: metal can + antenna
+        svg.rect(5.4, ym - 2.15, PCB_X1 - 5.6, 4.3, fill="#1a1d21", rx=0.2)
+        svg.rect(5.6, ym - 1.95, 9.0, 3.9, fill="#c9cdd2", stroke="#9aa1a9", sw=0.06, rx=0.15)
+        svg.text(10.1, ym - 0.45, "ESP32", size=0.95, fill="#495057", weight="bold")
+        svg.text(10.1, ym + 0.75, "DEVKIT V1", size=0.55, fill="#6c757d")
+        zig = [(15.0, ym + 1.4)]
         for k in range(6):
-            x = 18.75 + k * 0.42
+            x = 15.25 + k * 0.42
             zig += [(x, ym + 1.4), (x, ym - 1.4)] if k % 2 == 0 else [(x, ym - 1.4), (x, ym + 1.4)]
         svg.poly(zig, closed=False, stroke="#d4af37", sw=0.14)
 

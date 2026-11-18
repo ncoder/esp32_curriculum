@@ -192,7 +192,7 @@ class Schematic:
         if "GND" in self.terms:
             pins.append(dict(name="GND", side="B", pos=1.7, anchor="GND"))
             self.join("GND", "ESP32", "GND")
-        blk = d.add(Block(XR, h, pins, title="ESP32 DevKit", vertical_title=True).at((0, 0.6)).theta(0))
+        blk = d.add(Block(XR, h, pins, title="ESP32 DevKit V1", vertical_title=True).at((0, 0.6)).theta(0))
         for n in used_power:
             d.add(elm.Vdd().at(blk.absanchors[n]).theta(0).label(NET_LABELS[n], fontsize=FONT - 1))
         if "GND" in self.terms:

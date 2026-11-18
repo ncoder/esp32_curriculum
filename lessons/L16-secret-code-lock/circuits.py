@@ -6,20 +6,20 @@ c = Circuit("L16_keypad", "Keypad: rows on 13, 14, 27, 26; columns on 25, 4, 16,
             sketches=["L16_Keys"])
 gnd_a(c)
 c.module("K1", "keypad", (2, -1.5))           # pins R1 R2 R3 R4 C1 C2 C3 C4 at x = 2 ... 9
-for pin, hole in (("R1", "A:i5"), ("R2", "A:h8"), ("R3", "A:g9"), ("R4", "A:f10"), ("C1", "A:g11")):
+for pin, hole in (("R1", "A:i3"), ("R2", "A:h5"), ("R3", "A:g6"), ("R4", "A:f7"), ("C1", "A:g8")):
     c.wire(f"K1.{pin}", hole)
-# the column wires go on over the ESP32 to its bottom row
-for pin, hole, x in (("C2", "B:b7", -3.6), ("C3", "B:c8", -4.2), ("C4", "B:d9", -4.8)):
+# the column wires go round the USB end of the ESP32 to its bottom row
+for pin, hole, x in (("C2", "B:b5", -3.6), ("C3", "B:c6", -4.2), ("C4", "B:d7", -4.8)):
     c.wire(f"K1.{pin}", hole, via=[(x, -0.6), (x, 24 + "bcd".index(hole[2]))])
 buzzer_side(c)
 c.schematic.module("K1", left=[("R1", 13), ("R2", 14), ("R3", 27), ("R4", 26),
                                ("C1", 25), ("C2", 4), ("C3", 16), ("C4", 17)], title="4×4 keypad")
 
-d = c.copy("L16_lock", "The lock: servo on 18 (5V), red LED on 19, green LED on 23", sketches=["L16_Lock"])
-d.servo("M1", body=(4, 44), gnd="B:-8", vcc="B:+9", sig="B:j11", rotate=0)
-d.wire("B:f11", "B:e11")                   # servo signal row -> pin 18
-led_b(d, "R1", "D1", "red", 12, schematic_gpio=19)
-led_b(d, "R2", "D2", "green", 18, schematic_gpio=23)
+d = c.copy("L16_lock", "The lock: servo on 18 (5 V), red LED on 19, green LED on 23", sketches=["L16_Lock"])
+led_b(d, "R1", "D1", "red", 19, led_col=12)
+led_b(d, "R2", "D2", "green", 23)
+d.servo("M1", body=(2, 44), gnd="B:-6", vcc="B:+8", sig="B:j9", rotate=0)
+d.wire("B:f9", "B:e9")                     # servo signal row -> D18
 gnd_b(d)
 v5_b(d)
 d.schematic.module("M1", left=[("SIG", 18)], top=[("+5V", "5V")], bottom=[("GND", "GND")], title="SG90 servo")

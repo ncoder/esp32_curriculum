@@ -3,7 +3,7 @@
 Two 400-point breadboards are clipped together along their long edges: board
 **A** on top, board **B** below. The ESP32 lies across the join with its USB
 socket to the left: its top row of pins sits in row **j** of board A and its
-bottom row in row **a** of board B, in columns 1-19 (see docs/hardware-notes.md).
+bottom row in row **a** of board B, in columns 1-15 (see docs/hardware-notes.md).
 
 All coordinates are in breadboard pitches (0.1 inch). x grows to the right,
 y grows downwards. Column c of either board is at x = c.
@@ -17,7 +17,7 @@ Hole names
 ``B:-12``   board B's outer **-** rail
 ``A:bp12``  explicit rail names: tp/tn = top +/- , bn/bp = bottom -/+ .
             A's bottom rails and B's top rails lie under the ESP32 in columns
-            1-19, but are free in columns 20-30.
+            1-19, but are free from column 20 on.
 
 A rail name without a column (``A:-``) in a wire means "the nearest free hole
 on that rail".
